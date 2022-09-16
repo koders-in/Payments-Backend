@@ -1,29 +1,26 @@
-require('dotenv').config()
+require("dotenv").config();
 
 const axios = require("axios");
 const cheerio = require("cheerio");
 const express = require("express");
 const cors = require("cors");
 const app = express();
-const stripe = require('stripe')(process.env.STRIPE_SK);
+const stripe = require("stripe")(process.env.STRIPE_SK);
 
 const port = 8000;
 
-DEBUG = true; // ! Change to false in production
-
 app.use(cors());
 app.use(express.json());
-app.use((req, res, next) => {
-  const { body, method } = req;
-  console.log(body, method);
-  next();
-});
+
+// load env data
+const kodersHost = process.env.HOST;
+const paymentHost = process.env.PAYMENT;
 
 const getProjectMilestones = async (apiKey, projectIdentifier) => {
   const milestones = new Set();
   try {
     const response = await axios.get(
-      `https://kore.koders.in/projects/${projectIdentifier}/issues.json`,
+      `${kodersHost}/projects/${projectIdentifier}/issues.json`,
       { headers: { "X-Redmine-API-Key": apiKey } }
     );
     for (let issue in response.data.issues) {
@@ -42,7 +39,7 @@ const getProjectMilestones = async (apiKey, projectIdentifier) => {
 const getBudget = async (apiKey, issueIdentifier) => {
   try {
     const { data } = await axios.get(
-      `https://kore.koders.in/issues/${issueIdentifier}?token${apiKey}`,
+      `${kodersHost}/issues/${issueIdentifier}?token${apiKey}`,
       {
         headers: {
           "X-Redmine-API-Key": apiKey,
@@ -73,7 +70,7 @@ const getIssuesFromMilestone = async (
   const issues = new Set();
   try {
     const response = await axios.get(
-      `https://kore.koders.in/projects/${projectIdentifier}/issues.json`,
+      `${kodersHost}/projects/${projectIdentifier}/issues.json`,
       { headers: { "X-Redmine-API-Key": apiKey } }
     );
     for (let issue in response.data.issues) {
@@ -97,7 +94,7 @@ const getMilestonesData = async (apiKey, milestones) => {
     for (let milestone of milestones) {
       try {
         const response = await axios.get(
-          `https://kore.koders.in/versions/${milestone}.json`,
+          `${kodersHost}/versions/${milestone}.json`,
           { headers: { "X-Redmine-API-Key": apiKey } }
         );
 
@@ -119,70 +116,66 @@ app.get("/", (_, res) => {
   res.send("Hello World!");
 });
 
-app.post("/milestones/", async (req, res) => {
+app.post("/milestones", async (req, res) => {
   const { apiKey, projectIdentifier } = req.body;
   if (apiKey && projectIdentifier) {
     const milestones = await getProjectMilestones(apiKey, projectIdentifier);
-    if (milestones) {
-      const projectMileStones = await getMilestonesData(apiKey, milestones);
-      res.status(200).json({
-        data: projectMileStones,
-        msg: "Project milestone",
-      });
-    }
-  } else
-    res
-      .status(404)
-      .json({ msg: "Api key or Project Id is missing", data: null });
+    if (milestones instanceof Set) {
+      const response = await getMilestonesData(apiKey, milestones);
+      res.status(200).json({ data: response, msg: "Project milestone" });
+    } else res.status(404).json({ msg: milestones, data: null });
+  } else res.status(404).json({ msg: "Some keys are missing", data: null });
 });
 
-app.post("/get-budget/", async (req, res) => {
+app.post("/get-budget", async (req, res) => {
   const { apiKey, milestoneIdentifier, projectIdentifier } = req.body;
-  const issues = await getIssuesFromMilestone(
-    apiKey,
-    projectIdentifier,
-    milestoneIdentifier
-  );
-  let amount = 0;
-  if (issues instanceof Set) {
-    for (let issue in issues) {
-      const issue_budget = await getBudget(apiKey, issue);
-      if (issue_budget !== null) amount += Number(issue_budget);
-    }
-    res.status(200).json(amount);
-  } else res.status(404).json({ msg: issues, data: null });
+  if (apiKey && milestoneIdentifier && projectIdentifier) {
+    const issues = await getIssuesFromMilestone(
+      apiKey,
+      projectIdentifier,
+      milestoneIdentifier
+    );
+    let amount = 0;
+    if (issues instanceof Set) {
+      for (let issue of issues) {
+        const issue_budget = await getBudget(apiKey, issue);
+        if (issue_budget !== null) amount += Number(issue_budget);
+      }
+      res.status(200).json({ msg: "Budget amount", data: amount });
+    } else res.status(404).json({ msg: issues, data: null });
+  } else res.status(404).json({ msg: "Some keys are missing", data: null });
 });
 
 app.post("/checkout", async (req, res) => {
   const { milestoneTitle, milestoneUnitAmount, milestoneImages } = req.body;
-  const session = await stripe.checkout.sessions.create({
-    line_items: [
-      {
-        price_data: {
-          currency: 'inr',
-          product_data: {
-            name: milestoneTitle,
-            images: milestoneImages
+  if ((milestoneTitle && milestoneUnitAmount) || milestoneImages) {
+    const session = await stripe.checkout.sessions.create({
+      line_items: [
+        {
+          price_data: {
+            currency: "inr",
+            product_data: {
+              name: milestoneTitle,
+              images: milestoneImages,
+            },
+            unit_amount: milestoneUnitAmount,
           },
-          unit_amount: milestoneUnitAmount,
+          quantity: 1,
         },
-        quantity: 1,
-      },
-    ],
-    mode: 'payment',
-    success_url: 'https://payments.koders.in/success',
-    cancel_url: 'https://payments.koders.in/cancel',
-  });
-  res.redirect(303, session.url);
-})
+      ],
+      mode: "payment",
+      success_url: `${paymentHost}/success`,
+      cancel_url: `${paymentHost}/cancel`,
+    });
+    res.status(200).json({ msg: "Checkout URL", data: session.url });
+  } else res.status(404).json({ msg: "Some keys are missing", data: null });
+});
+
+app.get("*", function (req, res) {
+  const msg = `<p>No possible <b>${req.path} </b> endpoint for <b>${req.method}</b> method</p>`;
+  res.status(404).send(msg);
+});
 
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`);
 });
-
-(async () => {
-  const apiKey = "5201d97324f9359bcae0717a2b3f1f5b735a627a";
-  const data = await getProjectMilestones(apiKey, "89");
-  const projectMileStones = await getMilestonesData(apiKey, data);
-  console.log(projectMileStones);
-})();
