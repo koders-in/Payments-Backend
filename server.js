@@ -99,8 +99,11 @@ const getMilestonesData = async (apiKey, milestones) => {
           `https://kore.koders.in/versions/${milestone}.json`,
           { headers: { "X-Redmine-API-Key": apiKey } }
         );
-        milestonesData[response.data.version.name] =
-          response.data.version.status;
+
+        milestonesData[response.data.version.name] = {
+          status: response.data.version.status,
+          mileStoneId: response.data.version.id,
+        };
       } catch (err) {
         console.log("Milestone not found. Passing...");
       }
@@ -145,10 +148,17 @@ app.post("/get-budget/", async (req, res) => {
       const issue_budget = await getBudget(apiKey, issue);
       if (issue_budget !== null) amount += Number(issue_budget);
     }
-    res.send(200).json(amount);
-  } else res.send(404).json({ msg: issues, data: null });
+    res.status(200).json(amount);
+  } else res.status(404).json({ msg: issues, data: null });
 });
 
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`);
 });
+
+(async () => {
+  const apiKey = "5201d97324f9359bcae0717a2b3f1f5b735a627a";
+  const data = await getProjectMilestones(apiKey, "89");
+  const projectMileStones = await getMilestonesData(apiKey, data);
+  console.log(projectMileStones);
+})();
