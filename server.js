@@ -1,8 +1,12 @@
+require('dotenv').config()
+
 const axios = require("axios");
 const cheerio = require("cheerio");
 const express = require("express");
 const cors = require("cors");
 const app = express();
+const stripe = require('stripe')(process.env.STRIPE_SK);
+
 const port = 8000;
 
 DEBUG = true; // ! Change to false in production
@@ -14,9 +18,6 @@ app.use((req, res, next) => {
   console.log(body, method);
   next();
 });
-
-apiKey = "";
-projectIdentifier = "89";
 
 const getProjectMilestones = async (apiKey, projectIdentifier) => {
   const milestones = new Set();
@@ -151,6 +152,29 @@ app.post("/get-budget/", async (req, res) => {
     res.status(200).json(amount);
   } else res.status(404).json({ msg: issues, data: null });
 });
+
+app.post("/checkout", async (req, res) => {
+  const { milestoneTitle, milestoneUnitAmount, milestoneImages } = req.body;
+  const session = await stripe.checkout.sessions.create({
+    line_items: [
+      {
+        price_data: {
+          currency: 'inr',
+          product_data: {
+            name: milestoneTitle,
+            images: milestoneImages
+          },
+          unit_amount: milestoneUnitAmount,
+        },
+        quantity: 1,
+      },
+    ],
+    mode: 'payment',
+    success_url: 'https://payments.koders.in/success',
+    cancel_url: 'https://payments.koders.in/cancel',
+  });
+  res.redirect(303, session.url);
+})
 
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`);
