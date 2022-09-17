@@ -174,7 +174,7 @@ app.post("/get-budget", async (req, res) => {
 });
 
 app.post("/checkout", async (req, res) => {
-  const { milestoneTitle, milestoneUnitAmount, milestoneImages } = req.body;
+  const { milestoneTitle, milestoneUnitAmount, milestoneImages, apiKey, projectIdentifier} = req.body;
   const { projectName, projectIcon } = getProjectData(apiKey, projectIdentifier)
   if ((milestoneTitle && milestoneUnitAmount) || milestoneImages) {
     const session = await stripe.checkout.sessions.create({
