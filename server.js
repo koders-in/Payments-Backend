@@ -7,7 +7,7 @@ const cors = require("cors");
 const app = express();
 const stripe = require("stripe")(process.env.STRIPE_SK);
 
-const port = 8000;
+const port = 9442;
 
 app.use(cors());
 app.use(express.json());
@@ -164,7 +164,7 @@ app.post("/checkout", async (req, res) => {
               name: milestoneTitle,
               images: milestoneImages,
             },
-            unit_amount: milestoneUnitAmount,
+            unit_amount: milestoneUnitAmount * 100,
           },
           quantity: 1,
         },
