@@ -9,9 +9,7 @@ const stripe = require("stripe")(process.env.STRIPE_SK);
 
 const port = 8080;
 
-app.use(cors({
-  origin: 'https://payments.koders.in'
-}));
+app.use(cors());
 app.use(express.json());
 
 // use in dev
@@ -50,17 +48,19 @@ const getProjectData = async (apiKey, projectIdentifier) => {
       { headers: { "X-Redmine-API-Key": apiKey } }
     );
 
-    const projectData = []
+    const projectData = {}
 
-    projectData.push({projectName: response.data.project.name})
+    projectData['projectName'] =  response.data.project.name
     for (let customField of response.data.project.custom_fields){
       if (customField.name == "Project Icon"){
-        projectData.push({projectIcon: customField.value})
+        if (customField.value !== "")
+          projectData['projectIcon'] =  customField.value
+        else
+          projectData['projectIcon'] =  null
+        console.log(projectData)
         return projectData
       }
     }
-    projectData.push({projectIcon: "null"})
-    return projectData
   } catch (error) {
     console.error(error);
   }
@@ -177,7 +177,9 @@ app.post("/get-budget", async (req, res) => {
 
 app.post("/checkout", async (req, res) => {
   const { milestoneTitle, milestoneUnitAmount, apiKey, projectIdentifier} = req.body;
-  const { projectName, projectIcon } = getProjectData(apiKey, projectIdentifier)
+  const { projectName, projectIcon } = await getProjectData(apiKey, projectIdentifier);
+  console.log(req.body);
+  console.log(projectName, projectIcon)
   if ((milestoneTitle && milestoneUnitAmount) || projectIcon) {
     const session = await stripe.checkout.sessions.create({
       line_items: [
