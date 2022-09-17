@@ -19,8 +19,8 @@ app.use(express.json());
 // });
 
 // load env data
-const kodersHost = process.env.HOST;
-const paymentHost = process.env.PAYMENT;
+const kodersHost = process.env.HOST || "https://kore.koders.in";
+const paymentHost = process.env.PAYMENT || "https://payments.koders.in";
 
 const getProjectMilestones = async (apiKey, projectIdentifier) => {
   const milestones = new Set();
