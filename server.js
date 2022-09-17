@@ -12,6 +12,12 @@ const port = 8000;
 app.use(cors());
 app.use(express.json());
 
+// use in dev
+// app.use((req, res, cb) => {
+//   console.log(req.body);
+//   cb();
+// });
+
 // load env data
 const kodersHost = process.env.HOST;
 const paymentHost = process.env.PAYMENT;
@@ -165,7 +171,7 @@ app.post("/checkout", async (req, res) => {
       ],
       mode: "payment",
       success_url: `${paymentHost}/success`,
-      cancel_url: `${paymentHost}/cancel`,
+      cancel_url: `${paymentHost}/`,
     });
     res.status(200).json({ msg: "Checkout URL", data: session.url });
   } else res.status(404).json({ msg: "Some keys are missing", data: null });
