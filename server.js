@@ -7,7 +7,7 @@ const cors = require("cors");
 const app = express();
 const stripe = require("stripe")(process.env.STRIPE_SK);
 
-const port = 9442;
+const port = 8080;
 
 app.use(cors());
 app.use(express.json());
