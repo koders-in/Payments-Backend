@@ -9,7 +9,9 @@ const stripe = require("stripe")(process.env.STRIPE_SK);
 
 const port = 8080;
 
-app.use(cors());
+app.use(cors({
+  origin: 'https://payments.koders.in'
+}));
 app.use(express.json());
 
 // use in dev
