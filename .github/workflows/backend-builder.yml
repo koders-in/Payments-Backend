@@ -43,7 +43,7 @@ jobs:
       uses: fifsky/ssh-action@master
       with:
         command: |
-          cd /home/panther/payments-backend && docker build . -t payments-backend && docker run -d -p 9442:8080 payments-backend
+          export STRIPE_SK=${{ secrets.STRIPE_SK }} && cd /home/panther/payments-backend && docker build . -t payments-backend && docker run -d -p 9442:8080 payments-backend
         host: ${{ secrets.HOST }}
         user: ${{ secrets.USERNAME }}
         pass: ${{ secrets.PASSWORD}}
