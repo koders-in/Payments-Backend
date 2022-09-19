@@ -12,12 +12,6 @@ const port = 8080;
 app.use(cors());
 app.use(express.json());
 
-// use in dev
-// app.use((req, res, cb) => {
-//   console.log(req.body);
-//   cb();
-// });
-
 const kodersHost = process.env.HOST || "https://kore.koders.in";
 const paymentHost = process.env.PAYMENT || "https://payments.koders.in";
 
