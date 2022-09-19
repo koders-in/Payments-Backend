@@ -7,7 +7,7 @@ const cors = require("cors");
 const app = express();
 const stripe = require("stripe")(process.env.STRIPE_SK);
 
-const port = 8000;
+const port = 8080;
 
 app.use(cors());
 app.use(express.json());
@@ -18,9 +18,8 @@ app.use(express.json());
 //   cb();
 // });
 
-// load env data
-const kodersHost = process.env.HOST;
-const paymentHost = process.env.PAYMENT;
+const kodersHost = process.env.HOST || "https://kore.koders.in";
+const paymentHost = process.env.PAYMENT || "https://payments.koders.in";
 
 const getProjectMilestones = async (apiKey, projectIdentifier) => {
   const milestones = new Set();
@@ -42,6 +41,29 @@ const getProjectMilestones = async (apiKey, projectIdentifier) => {
   }
 };
 
+const getProjectData = async (apiKey, projectIdentifier) => {
+  try {
+    const response = await axios.get(
+      `${kodersHost}/projects/${projectIdentifier}.json`,
+      { headers: { "X-Redmine-API-Key": apiKey } }
+    );
+
+    const projectData = {};
+
+    projectData["projectName"] = response.data.project.name;
+    for (let customField of response.data.project.custom_fields) {
+      if (customField.name == "Project Icon") {
+        if (customField.value !== "")
+          projectData["projectIcon"] = customField.value;
+        else projectData["projectIcon"] = null;
+        console.log(projectData);
+        return projectData;
+      }
+    }
+  } catch (error) {
+    console.error(error);
+  }
+};
 const getBudget = async (apiKey, issueIdentifier) => {
   try {
     const { data } = await axios.get(
@@ -153,18 +175,25 @@ app.post("/get-budget", async (req, res) => {
 });
 
 app.post("/checkout", async (req, res) => {
-  const { milestoneTitle, milestoneUnitAmount, milestoneImages } = req.body;
-  if ((milestoneTitle && milestoneUnitAmount) || milestoneImages) {
+  const { milestoneTitle, milestoneUnitAmount, apiKey, projectIdentifier } =
+    req.body;
+  const { projectName, projectIcon } = await getProjectData(
+    apiKey,
+    projectIdentifier
+  );
+
+  if ((milestoneTitle && milestoneUnitAmount) || projectIcon) {
     const session = await stripe.checkout.sessions.create({
       line_items: [
         {
           price_data: {
             currency: "inr",
             product_data: {
-              name: milestoneTitle,
-              images: milestoneImages,
+              name: projectName,
+              description: milestoneTitle,
+              images: [projectIcon],
             },
-            unit_amount: milestoneUnitAmount,
+            unit_amount: milestoneUnitAmount * 100,
           },
           quantity: 1,
         },
@@ -183,5 +212,5 @@ app.get("*", function (req, res) {
 });
 
 app.listen(port, () => {
-  console.log(`Example app listening at http://localhost:${port}`);
+  console.log(`Koders payment app listening at http://localhost:${port}`);
 });

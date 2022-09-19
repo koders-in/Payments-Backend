@@ -1,7 +1,0 @@
-add better validation and error handlers
-when sending budget store in variable to check next time frontend send budget
-on checkout endpoint to check budget is same as when send from budget and no budget tampered
-Add middleware to check if request has api key or not and don't pass to endpoint
-Create axios instance using kodersHost url and use it instaed of creatind full url everywhere
-Add some good validation in checkout endpoint and handler error properly
-Error handle properly in all endpoint
