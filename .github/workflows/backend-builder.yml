@@ -5,7 +5,7 @@ name: Deploy Backend
 
 on:
   push:
-    branches: [ "backend" ]
+    branches: [ "main" ]
 
 jobs:
   Backend-Deploy:
@@ -29,11 +29,7 @@ jobs:
         password: ${{ secrets.PASSWORD }}
         port: ${{ secrets.PORT }}
         source: "."
-<<<<<<< HEAD
-        target: "/home/panther/payment-backend"
-=======
         target: "/home/panther/payments-backend"
->>>>>>> 3628a60a2635df3f9a54244f05f37d47f3ec9281
     - name: Stopping and remove existing container
       uses: fifsky/ssh-action@master
       with:
@@ -47,11 +43,7 @@ jobs:
       uses: fifsky/ssh-action@master
       with:
         command: |
-<<<<<<< HEAD
-          cd /home/panther/payments-backend && docker build . -t payments-backend && docker run -d -p 9442:8080 payments-backend
-=======
           cd /home/panther/payments-backend && docker build . -t payments-backend && docker run -e STRIPE_SK=${{ secrets.STRIPE_SK }} -d -p 9442:8080 payments-backend
->>>>>>> 3628a60a2635df3f9a54244f05f37d47f3ec9281
         host: ${{ secrets.HOST }}
         user: ${{ secrets.USERNAME }}
         pass: ${{ secrets.PASSWORD}}
