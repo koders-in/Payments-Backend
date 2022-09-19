@@ -8,8 +8,8 @@ const app = express();
 const stripe = require("stripe")(process.env.STRIPE_SK);
 const port = 8080;
 
-const redmineUrl = process.env.REDMINE_URL || "https://kore.koders.in";
-const appUrl = process.env.APP_URL || "https://payments.koders.in";
+const redmineUrl = process.env.REDMINE_URL;
+const appUrl = process.env.APP_URL;
 
 const cors = require('cors');
 app.use(cors({
