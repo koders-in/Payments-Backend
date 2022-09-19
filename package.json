@@ -1,9 +1,9 @@
 {
   "name": "koders-payment-backend",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "This app is responsible for transactions over Koders' stripe account via payments.koders.in",
   "main": "server.js",
-  "repository": "https://github.com/koders-in/Payments.git",
+  "repository": "https://github.com/koders-in/Payments-Backend.git",
   "author": "Kartikey Kushwah <support@koders.in>",
   "license": "Koders",
   "scripts": {
