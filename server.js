@@ -6,20 +6,23 @@ const express = require("express");
 const cors = require("cors");
 const app = express();
 const stripe = require("stripe")(process.env.STRIPE_SK);
-
 const port = 8080;
 
-app.use(cors());
-app.use(express.json());
+const redmineUrl = process.env.REDMINE_URL || "https://kore.koders.in";
+const appUrl = process.env.APP_URL || "https://payments.koders.in";
 
-const kodersHost = process.env.HOST || "https://kore.koders.in";
-const paymentHost = process.env.PAYMENT || "https://payments.koders.in";
+const cors = require('cors');
+app.use(cors({
+    origin: appUrl
+}));
+
+app.use(express.json());
 
 const getProjectMilestones = async (apiKey, projectIdentifier) => {
   const milestones = new Set();
   try {
     const response = await axios.get(
-      `${kodersHost}/projects/${projectIdentifier}/issues.json`,
+      `${redmineUrl}/projects/${projectIdentifier}/issues.json`,
       { headers: { "X-Redmine-API-Key": apiKey } }
     );
     for (let issue in response.data.issues) {
@@ -38,7 +41,7 @@ const getProjectMilestones = async (apiKey, projectIdentifier) => {
 const getProjectData = async (apiKey, projectIdentifier) => {
   try {
     const response = await axios.get(
-      `${kodersHost}/projects/${projectIdentifier}.json`,
+      `${redmineUrl}/projects/${projectIdentifier}.json`,
       { headers: { "X-Redmine-API-Key": apiKey } }
     );
 
@@ -61,7 +64,7 @@ const getProjectData = async (apiKey, projectIdentifier) => {
 const getBudget = async (apiKey, issueIdentifier) => {
   try {
     const { data } = await axios.get(
-      `${kodersHost}/issues/${issueIdentifier}?token${apiKey}`,
+      `${redmineUrl}/issues/${issueIdentifier}?token${apiKey}`,
       {
         headers: {
           "X-Redmine-API-Key": apiKey,
@@ -92,7 +95,7 @@ const getIssuesFromMilestone = async (
   const issues = new Set();
   try {
     const response = await axios.get(
-      `${kodersHost}/projects/${projectIdentifier}/issues.json`,
+      `${redmineUrl}/projects/${projectIdentifier}/issues.json`,
       { headers: { "X-Redmine-API-Key": apiKey } }
     );
     for (let issue in response.data.issues) {
@@ -116,7 +119,7 @@ const getMilestonesData = async (apiKey, milestones) => {
     for (let milestone of milestones) {
       try {
         const response = await axios.get(
-          `${kodersHost}/versions/${milestone}.json`,
+          `${redmineUrl}/versions/${milestone}.json`,
           { headers: { "X-Redmine-API-Key": apiKey } }
         );
 
@@ -193,8 +196,8 @@ app.post("/checkout", async (req, res) => {
         },
       ],
       mode: "payment",
-      success_url: `${paymentHost}/success`,
-      cancel_url: `${paymentHost}/`,
+      success_url: `${appUrl}/success`,
+      cancel_url: `${appUrl}/`,
     });
     res.status(200).json({ msg: "Checkout URL", data: session.url });
   } else res.status(404).json({ msg: "Some keys are missing", data: null });
