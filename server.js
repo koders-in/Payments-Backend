@@ -44,7 +44,7 @@ app.post("/get-budget", async (req, res) => {
       for (let issue of issues) {
         const issue_budget = await getBudget(apiKey, issue);
         console.log(issue_budget);
-        console.log(typeof(issue_budget);
+        console.log(typeof(issue_budget));
         if (issue_budget !== null && issue_budget != "") amount += Number(issue_budget);
       }
       console.log({ msg: "Budget amount", data: amount });
