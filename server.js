@@ -42,7 +42,8 @@ app.post("/get-budget", async (req, res) => {
     let amount = 0;
     if (issues instanceof Set) {
       for (let issue of issues) {
-        const issue_budget = await getBudget(apiKey, issue);
+        let issue_budget = await getBudget(apiKey, issue);
+          issue_budget = issue_budget.trim();
           console.log(issue_budget.replace("\n", ""))
           console.log(issue_budget.trim())
           console.log(typeof(issue_budget))
