@@ -47,6 +47,7 @@ app.post("/get-budget", async (req, res) => {
           issue_budget = issue_budget.replace("\n", "");
           console.log(issue_budget)
           issue_budget = issue_budget.trim();
+          console.log(issue_budget)
           console.log(typeof(issue_budget))
         if (issue_budget !== null) amount += Number(issue_budget);
       }
