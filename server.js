@@ -25,7 +25,6 @@ app.post("/milestones", async (req, res) => {
     const milestones = await getProjectMilestones(apiKey, projectIdentifier);
     if (milestones instanceof Set) {
       const response = await getMilestonesData(apiKey, milestones);
-      console.log({ data: response, msg: "Project milestone" });
       res.status(200).json({ data: response, msg: "Project milestone" });
     } else res.status(404).json({ msg: milestones, data: null });
   } else res.status(404).json({ msg: "Some keys are missing", data: null });
@@ -43,10 +42,8 @@ app.post("/get-budget", async (req, res) => {
     if (issues instanceof Set) {
       for (let issue of issues) {
         const issue_budget = await getBudget(apiKey, issue);
-        console.log(issue_budget);
         if (issue_budget !== null) amount += Number(issue_budget);
       }
-      console.log({ msg: "Budget amount", data: amount });
       res.status(200).json({ msg: "Budget amount", data: amount });
     } else res.status(404).json({ msg: issues, data: null });
   } else res.status(404).json({ msg: "Some keys are missing", data: null });
