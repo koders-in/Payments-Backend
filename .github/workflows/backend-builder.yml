@@ -51,7 +51,7 @@ jobs:
       uses: fifsky/ssh-action@master
       with:
         command: |
-          docker run -d -p 9442:8080 --name payments-backend ${{ secrets.DOCKER_HUB_USERNAME }}/payments-backend
+          docker run -d -p 9442:8080 --name payments-backend -e REDMINE_URL https://kore.koders.in -e STRIPE_SK=${{ secrets.STRIPE_SK }} -e APP_URL https://payments.koders.in ${{ secrets.DOCKER_HUB_USERNAME }}/payments-backend
         host: ${{ secrets.HOST }}
         user: ${{ secrets.USERNAME }}
         pass: ${{ secrets.PASSWORD}}
