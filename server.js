@@ -43,16 +43,7 @@ app.post("/get-budget", async (req, res) => {
     if (issues instanceof Set) {
       for (let issue of issues) {
         let issue_budget = await getBudget(apiKey, issue);
-          issue_budget.replace(/\s/g, "");
-          console.log(issue_budget);
-          console.log(`'${issue_budget}'`)
-          console.log(issue_budget.trim())
-          console.log(issue_budget);
-          issue_budget = issue_budget.replace("\n", "");
-          console.log(issue_budget)
-          issue_budget = issue_budget.trim();
-          console.log(issue_budget)
-          console.log(typeof(issue_budget))
+        issue_budget = issue_budget.trim().replace("₹", "");
         if (issue_budget !== null) amount += Number(issue_budget);
       }
       console.log({ msg: "Budget amount", data: amount });
