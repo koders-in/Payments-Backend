@@ -1,38 +1,45 @@
 require("dotenv").config();
 
-const axios = require("axios");
 const cheerio = require("cheerio");
 const express = require("express");
 const cors = require("cors");
-const app = express();
+const { client, makeHeader } = require("./api");
 const stripe = require("stripe")(process.env.STRIPE_SK);
+const app = express();
 const port = 8080;
 
-const redmineUrl = process.env.REDMINE_URL;
 const appUrl = process.env.APP_URL;
 
-const cors = require('cors');
-app.use(cors({
-    origin: appUrl
-}));
+app.use(
+  cors({
+    origin: appUrl,
+  })
+);
 
 app.use(express.json());
+
+app.use((req, res, cb) => {
+  if ("apiKey" in req.body) cb();
+  else res.status(422).send({ data: null, msg: "API key is missing in body" });
+});
 
 const getProjectMilestones = async (apiKey, projectIdentifier) => {
   const milestones = new Set();
   try {
-    const response = await axios.get(
-      `${redmineUrl}/projects/${projectIdentifier}/issues.json`,
-      { headers: { "X-Redmine-API-Key": apiKey } }
+    const { data, status } = await client.get(
+      `/projects/${projectIdentifier}/issues.json`,
+      makeHeader(apiKey)
     );
-    for (let issue in response.data.issues) {
-      try {
-        milestones.add(response.data.issues[issue].fixed_version.id);
-      } catch (err) {
-        console.log("Issue not assigned to a version. Passing...");
+    if (status === 200) {
+      for (let issue in data.issues) {
+        try {
+          milestones.add(data.issues[issue].fixed_version.id);
+        } catch (err) {
+          console.log("Issue not assigned to a version. Passing...");
+        }
       }
+      return milestones;
     }
-    return milestones;
   } catch (error) {
     console.error(error);
   }
@@ -40,21 +47,21 @@ const getProjectMilestones = async (apiKey, projectIdentifier) => {
 
 const getProjectData = async (apiKey, projectIdentifier) => {
   try {
-    const response = await axios.get(
-      `${redmineUrl}/projects/${projectIdentifier}.json`,
-      { headers: { "X-Redmine-API-Key": apiKey } }
+    const { status, data } = await client.get(
+      `/projects/${projectIdentifier}.json`,
+      makeHeader(apiKey)
     );
 
-    const projectData = {};
-
-    projectData["projectName"] = response.data.project.name;
-    for (let customField of response.data.project.custom_fields) {
-      if (customField.name == "Project Icon") {
-        if (customField.value !== "")
-          projectData["projectIcon"] = customField.value;
-        else projectData["projectIcon"] = null;
-        console.log(projectData);
-        return projectData;
+    if (status === 200) {
+      const projectData = {};
+      projectData["projectName"] = data.project.name;
+      for (let customField of data.project.custom_fields) {
+        if (customField.name == "Project Icon") {
+          if (customField.value !== "")
+            projectData["projectIcon"] = customField.value;
+          else projectData["projectIcon"] = null;
+          return projectData;
+        }
       }
     }
   } catch (error) {
@@ -63,22 +70,18 @@ const getProjectData = async (apiKey, projectIdentifier) => {
 };
 const getBudget = async (apiKey, issueIdentifier) => {
   try {
-    const { data } = await axios.get(
-      `${redmineUrl}/issues/${issueIdentifier}?token${apiKey}`,
-      {
-        headers: {
-          "X-Redmine-API-Key": apiKey,
-          "User-Agent":
-            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.5112.102 Safari/537.36 OPR/90.0.4480.78 (Edition std-1)",
-        },
-      }
+    const { data, status } = await client.get(
+      `/issues/${issueIdentifier}?token${apiKey}`,
+      makeHeader(apiKey, true)
     );
-    const $ = cheerio.load(data);
-    const tableItems = $(".billing-details tbody tr");
-    for (let i = 0; i < tableItems.length; i++) {
-      const el = tableItems[i];
-      if ($(el).children("th").text() === "Budget") {
-        return $(el).children("td").text().replace("₹", "");
+    if (status === 200) {
+      const $ = cheerio.load(data);
+      const tableItems = $(".billing-details tbody tr");
+      for (let i = 0; i < tableItems.length; i++) {
+        const el = tableItems[i];
+        if ($(el).children("th").text() === "Budget") {
+          return $(el).children("td").text().replace("₹", "");
+        }
       }
     }
     return null;
@@ -94,20 +97,22 @@ const getIssuesFromMilestone = async (
 ) => {
   const issues = new Set();
   try {
-    const response = await axios.get(
-      `${redmineUrl}/projects/${projectIdentifier}/issues.json`,
-      { headers: { "X-Redmine-API-Key": apiKey } }
+    const { status, data } = await client.get(
+      `/projects/${projectIdentifier}/issues.json`,
+      makeHeader(apiKey)
     );
-    for (let issue in response.data.issues) {
-      try {
-        if (response.data.issues[issue].fixed_version.id == milestoneIdentifier)
-          issues.add(response.data.issues[issue].id);
-      } catch (err) {
-        console.log("Issue not assigned to a version. Passing...");
+    if (status === 200) {
+      for (let issue in data.issues) {
+        try {
+          if (data.issues[issue].fixed_version.id == milestoneIdentifier)
+            issues.add(data.issues[issue].id);
+        } catch (err) {
+          console.log("Issue not assigned to a version. Passing...");
+        }
       }
-    }
 
-    return issues;
+      return issues;
+    }
   } catch (err) {
     return err.message;
   }
@@ -118,15 +123,16 @@ const getMilestonesData = async (apiKey, milestones) => {
   try {
     for (let milestone of milestones) {
       try {
-        const response = await axios.get(
-          `${redmineUrl}/versions/${milestone}.json`,
-          { headers: { "X-Redmine-API-Key": apiKey } }
+        const { data, status } = await client.get(
+          `/versions/${milestone}.json`,
+          makeHeader(apiKey)
         );
-
-        milestonesData[response.data.version.name] = {
-          status: response.data.version.status,
-          mileStoneId: response.data.version.id,
-        };
+        if (status === 200) {
+          milestonesData[data.version.name] = {
+            status: data.version.status,
+            mileStoneId: data.version.id,
+          };
+        }
       } catch (err) {
         console.log("Milestone not found. Passing...");
       }
@@ -174,32 +180,33 @@ app.post("/get-budget", async (req, res) => {
 app.post("/checkout", async (req, res) => {
   const { milestoneTitle, milestoneUnitAmount, apiKey, projectIdentifier } =
     req.body;
-  const { projectName, projectIcon } = await getProjectData(
-    apiKey,
-    projectIdentifier
-  );
-
-  if ((milestoneTitle && milestoneUnitAmount) || projectIcon) {
-    const session = await stripe.checkout.sessions.create({
-      line_items: [
-        {
-          price_data: {
-            currency: "inr",
-            product_data: {
-              name: projectName,
-              description: milestoneTitle,
-              images: [projectIcon],
+  if (apiKey && projectIdentifier) {
+    const { projectName, projectIcon } = await getProjectData(
+      apiKey,
+      projectIdentifier
+    );
+    if ((milestoneTitle && milestoneUnitAmount) || projectIcon) {
+      const session = await stripe.checkout.sessions.create({
+        line_items: [
+          {
+            price_data: {
+              currency: "inr",
+              product_data: {
+                name: projectName,
+                description: milestoneTitle,
+                images: [projectIcon],
+              },
+              unit_amount: milestoneUnitAmount * 100,
             },
-            unit_amount: milestoneUnitAmount * 100,
+            quantity: 1,
           },
-          quantity: 1,
-        },
-      ],
-      mode: "payment",
-      success_url: `${appUrl}/success`,
-      cancel_url: `${appUrl}/`,
-    });
-    res.status(200).json({ msg: "Checkout URL", data: session.url });
+        ],
+        mode: "payment",
+        success_url: `${appUrl}/success`,
+        cancel_url: `${appUrl}/`,
+      });
+      res.status(200).json({ msg: "Checkout URL", data: session.url });
+    } else res.status(404).json({ msg: "Some keys are missing", data: null });
   } else res.status(404).json({ msg: "Some keys are missing", data: null });
 });
 
