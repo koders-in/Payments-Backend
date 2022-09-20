@@ -1,4 +1,4 @@
-name: Building & Deploying Frontend
+name: Building & Deploying Backend
 
 on:
   push:
@@ -51,7 +51,7 @@ jobs:
       uses: fifsky/ssh-action@master
       with:
         command: |
-          docker run -d -p 9442:8080 ${{ secrets.DOCKER_HUB_USERNAME }}/payments-backend --name payments-backend
+          docker run -d -p 9442:8080 --name payments-backend ${{ secrets.DOCKER_HUB_USERNAME }}/payments-backend
         host: ${{ secrets.HOST }}
         user: ${{ secrets.USERNAME }}
         pass: ${{ secrets.PASSWORD}}
