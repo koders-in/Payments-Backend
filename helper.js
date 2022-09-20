@@ -67,7 +67,7 @@ const getBudget = async (apiKey, issueIdentifier) => {
     for (let i = 0; i < tableItems.length; i++) {
       const el = tableItems[i];
       if ($(el).children("th").text() === "Budget") {
-        return $(el).children("td").text().trim().replace("₹", "");
+        return $(el).children("td").text().replace(/\s/g, "").trim().replace("₹", "");
       }
     }
     return null;
