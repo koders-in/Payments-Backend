@@ -7,7 +7,7 @@ const stripe = require("stripe")(process.env.STRIPE_SK);
 
 const { getProjectMilestones, getMilestonesData, getIssuesFromMilestone, getBudget, getProjectData } = require("./helper");
 const appUrl = process.env.APP_URL;
-const port = 8080;
+const port = 9442;
 
 app.use(cors({
     origin: appUrl
