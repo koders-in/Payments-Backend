@@ -17,7 +17,7 @@ const getProjectMilestones = async (apiKey, projectIdentifier) => {
       try {
         milestones.add(response.data.issues[issue].fixed_version.id);
       } catch (err) {
-        console.log("There is something I should put online");
+        console.log("Something went wrong. Unable to find any releases");
       }
     }
     return milestones;
@@ -67,8 +67,7 @@ const getBudget = async (apiKey, issueIdentifier) => {
     for (let i = 0; i < tableItems.length; i++) {
       const el = tableItems[i];
       if ($(el).children("th").text() === "Budget") {
-        let issue_budget = $(el).children("td").text().replace("₹", "");
-        return issue_budget.trim()
+        return $(el).children("td").text().replace("₹", "");
       }
     }
     return null;
