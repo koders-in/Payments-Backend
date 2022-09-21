@@ -32,7 +32,7 @@ app.post("/get-project", async (req, res) => {
 app.post("/get-budget", async (req, res) => {
   const { apiKey, issues } = req.body;
   if (apiKey && issues ) {
-    const amount = await getBudget(apiKey, issue);
+    const amount = await getBudget(apiKey, issues);
       res.status(200).json({ msg: "Budget amount", data: amount });
   } else res.status(404).json({ msg: "Some keys are missing", data: null });
 });
