@@ -44,9 +44,8 @@ const getMilestoneData = async (apiKey, milestone) => {
       { headers: { "X-Redmine-API-Key": apiKey } }
     );
 
-    milestoneData[response.data.version.name] = {
+    milestoneData[response.data.version.id] = {
       status: response.data.version.status,
-      mileStoneId: response.data.version.id,
       estimatedHours: response.data.version.estimated_hours,
       spentHours: response.data.version.spent_hours
     };
@@ -66,7 +65,6 @@ const getProjectMilestones = async (apiKey, projectIdentifier) => {
     );
     for (let issue of response.data.issues) {
       try {
-        console.log(issue)
         if (milestonesData[issue.fixed_version.id] === undefined)
           milestonesData[issue.fixed_version.id] = { "done_ratio": issue.done_ratio, "issues": [issue.id] }
         else
@@ -137,15 +135,20 @@ const fetchProject = async(apiKey, projectIdentifier) => {
   const projectData = await getProjectData(apiKey, projectIdentifier);
   const projectMilestones = await getProjectMilestones(apiKey, projectIdentifier);
 
-  project[projectIdentifier] = {"projectData": projectData, "milestoneData": projectMilestones, "projectMilestones": [] };
+  project[projectIdentifier] = {"projectData": projectData};
 
+  const milestones = {}
   for (let milestone in projectMilestones){
-    console.log(milestone)
     const milestoneData = await getMilestoneData(apiKey, milestone)
-    project[projectIdentifier].projectMilestones = [...project[projectIdentifier].projectMilestones, milestoneData];
+    milestones[milestone] = {"status": milestoneData[milestone].status,
+     "issues": projectMilestones[milestone].issues,
+     "done_ratio": projectMilestones[milestone].done_ratio,
+     "estimatedHours": milestoneData[milestone].estimatedHours,
+     "spentHours": milestoneData[milestone].spentHours
+    }
   }
-
-  console.log(project)
+  project[projectIdentifier].milestones = milestones;
+  return project
 };
 
 (async () => console.log(await fetchProject(apiKey, projectIdentifier)))();
