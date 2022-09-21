@@ -5,7 +5,7 @@ const cors = require("cors");
 const app = express();
 const stripe = require("stripe")(process.env.STRIPE_SK);
 
-const { getProjectMilestones, getMilestonesData, getIssuesFromMilestone, getBudget, getProjectData } = require("./helper");
+const { fetchProject, getBudget} = require("./helper");
 const appUrl = process.env.APP_URL;
 const port = 9442;
 
@@ -19,33 +19,19 @@ app.get("/", (_, res) => {
   res.send("Payment API is working perfectly");
 });
 
-app.post("/milestones", async (req, res) => {
+app.post("/get-project", async (req, res) => {
   const { apiKey, projectIdentifier } = req.body;
   if (apiKey && projectIdentifier) {
-    const milestones = await getProjectMilestones(apiKey, projectIdentifier);
-    if (milestones instanceof Set) {
-      const response = await getMilestonesData(apiKey, milestones);
-      res.status(200).json({ data: response, msg: "Project milestone" });
-    } else res.status(404).json({ msg: milestones, data: null });
+    const data = await fetchProject(apiKey, projectIdentifier);
+      res.status(200).json({ data: data, msg: "Project Details" });
   } else res.status(404).json({ msg: "Some keys are missing", data: null });
 });
 
 app.post("/get-budget", async (req, res) => {
-  const { apiKey, milestoneIdentifier, projectIdentifier } = req.body;
-  if (apiKey && milestoneIdentifier && projectIdentifier) {
-    const issues = await getIssuesFromMilestone(
-      apiKey,
-      projectIdentifier,
-      milestoneIdentifier
-    );
-    let amount = 0;
-    if (issues instanceof Set) {
-      for (let issue of issues) {
-        const issue_budget = await getBudget(apiKey, issue);
-        if (issue_budget !== null) amount += Number(issue_budget);
-      }
+  const { apiKey, issues } = req.body;
+  if (apiKey && issues ) {
+    const amount = await getBudget(apiKey, issue);
       res.status(200).json({ msg: "Budget amount", data: amount });
-    } else res.status(404).json({ msg: issues, data: null });
   } else res.status(404).json({ msg: "Some keys are missing", data: null });
 });
 

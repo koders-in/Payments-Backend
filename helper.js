@@ -5,9 +5,6 @@ const cheerio = require("cheerio");
 
 const redmineUrl = process.env.REDMINE_URL;
 
-apiKey = ""
-projectIdentifier = "test-project-budget-check"
-
 const getMilestoneData = async (apiKey, milestone) => {
   const milestoneData = {}
   try {
@@ -116,22 +113,14 @@ const fetchProject = async(apiKey, projectIdentifier) => {
   const milestones = {}
   for (let milestone in projectMilestones){
     const milestoneData = await getMilestoneData(apiKey, milestone)
-    milestones[milestone] = {"status": milestoneData[milestone].status,
-     "issues": projectMilestones[milestone].issues,
-     "done_ratio": projectMilestones[milestone].done_ratio,
-     "estimatedHours": milestoneData[milestone].estimatedHours,
-     "spentHours": milestoneData[milestone].spentHours
+    milestones[milestone] = { "issues": projectMilestones[milestone].issues, "status": milestoneData[milestone].status, "done_ratio": projectMilestones[milestone].done_ratio, "estimatedHours": milestoneData[milestone].estimatedHours, "spentHours": milestoneData[milestone].spentHours
     }
   }
   project[projectIdentifier].milestones = milestones;
   return project
 };
 
-// (async () => console.log(await getBudget(apiKey, [1933, 1940])))();
-
 module.exports = {
-  getProjectMilestones,
-  getProjectData,
   getBudget,
-  getMilestoneData,
+  fetchProject
 }
