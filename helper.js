@@ -8,34 +8,6 @@ const redmineUrl = process.env.REDMINE_URL;
 apiKey = ""
 projectIdentifier = "test-project-budget-check"
 
-// TODO => This function can be removed
-const getIssuesFromMilestone = async (
-  apiKey,
-  projectIdentifier,
-  milestoneIdentifier
-) => {
-  const issues = new Set();
-  try {
-    const response = await axios.get(
-      `${redmineUrl}/projects/${projectIdentifier}/issues.json`,
-      { headers: { "X-Redmine-API-Key": apiKey } }
-    );
-    for (let issue in response.data.issues) {
-      try {
-        if (response.data.issues[issue].fixed_version.id == milestoneIdentifier)
-          issues.add(response.data.issues[issue].id);
-      } catch (err) {
-        console.log("Issue not assigned to a version. Passing...");
-      }
-    }
-
-    return issues;
-  } catch (err) {
-    return err.message;
-  }
-};
-
-
 const getMilestoneData = async (apiKey, milestone) => {
   const milestoneData = {}
   try {
@@ -103,10 +75,12 @@ const getProjectData = async (apiKey, projectIdentifier) => {
   }
 };
 
-const getBudget = async (apiKey, issueIdentifier) => {
+const getBudget = async (apiKey, issueIdentifiers) => {
+  let amount = 0;
+  for (let issue of issueIdentifiers){
   try {
     const { data } = await axios.get(
-      `${redmineUrl}/issues/${issueIdentifier}?token${apiKey}`,
+      `${redmineUrl}/issues/${issue}?token${apiKey}`,
       {
         headers: {
           "X-Redmine-API-Key": apiKey,
@@ -121,13 +95,15 @@ const getBudget = async (apiKey, issueIdentifier) => {
     for (let i = 0; i < tableItems.length; i++) {
       const el = tableItems[i];
       if ($(el).children("th").text() === "Budget") {
-        return $(el).children("td").text().trim().replace(/[,₹]/g, '');
+        amount += Number($(el).children("td").text().trim().replace(/[,₹]/g, ''));
       }
     }
-    return null;
   } catch (error) {
+    console.log("Something went wrong while calculating budget. Passing...")
     return null;
+    }
   }
+  return amount;
 };
 
 const fetchProject = async(apiKey, projectIdentifier) => {
@@ -151,12 +127,11 @@ const fetchProject = async(apiKey, projectIdentifier) => {
   return project
 };
 
-(async () => console.log(await fetchProject(apiKey, projectIdentifier)))();
+// (async () => console.log(await getBudget(apiKey, [1933, 1940])))();
 
 module.exports = {
   getProjectMilestones,
   getProjectData,
   getBudget,
-  getIssuesFromMilestone,
   getMilestoneData,
 }
