@@ -7,6 +7,56 @@ const redmineUrl = process.env.REDMINE_URL;
 
 apiKey = ""
 projectIdentifier = "test-project-budget-check"
+
+// TODO => This function can be removed
+const getIssuesFromMilestone = async (
+  apiKey,
+  projectIdentifier,
+  milestoneIdentifier
+) => {
+  const issues = new Set();
+  try {
+    const response = await axios.get(
+      `${redmineUrl}/projects/${projectIdentifier}/issues.json`,
+      { headers: { "X-Redmine-API-Key": apiKey } }
+    );
+    for (let issue in response.data.issues) {
+      try {
+        if (response.data.issues[issue].fixed_version.id == milestoneIdentifier)
+          issues.add(response.data.issues[issue].id);
+      } catch (err) {
+        console.log("Issue not assigned to a version. Passing...");
+      }
+    }
+
+    return issues;
+  } catch (err) {
+    return err.message;
+  }
+};
+
+
+const getMilestoneData = async (apiKey, milestone) => {
+  const milestoneData = {}
+  try {
+    const response = await axios.get(
+      `${redmineUrl}/versions/${milestone}.json`,
+      { headers: { "X-Redmine-API-Key": apiKey } }
+    );
+
+    milestoneData[response.data.version.name] = {
+      status: response.data.version.status,
+      mileStoneId: response.data.version.id,
+      estimatedHours: response.data.version.estimated_hours,
+      spentHours: response.data.version.spent_hours
+    };
+  } catch (err) {
+    console.log("Milestone not found. Passing...");
+  }
+  return milestoneData;
+};
+
+
 const getProjectMilestones = async (apiKey, projectIdentifier) => {
   const milestonesData = {};
   try {
@@ -18,9 +68,9 @@ const getProjectMilestones = async (apiKey, projectIdentifier) => {
       try {
         console.log(issue)
         if (milestonesData[issue.fixed_version.id] === undefined)
-          milestonesData[issue.fixed_version.id] = { "done_ratio": issue.done_ratio, "issues_count": 1}
+          milestonesData[issue.fixed_version.id] = { "done_ratio": issue.done_ratio, "issues": [issue.id] }
         else
-          milestonesData[issue.fixed_version.id] = { "done_ratio": (milestonesData[issue.fixed_version.id].done_ratio + issue.done_ratio), "issues_count": milestonesData[issue.fixed_version.id].issues_count + 1 }
+          milestonesData[issue.fixed_version.id] = { "done_ratio": (milestonesData[issue.fixed_version.id].done_ratio + issue.done_ratio), "issues": [...milestonesData[issue.fixed_version.id].issues, issue.id] }
       } catch (err) {
         console.log("Something went wrong. Unable to find any releases");
       }
@@ -82,65 +132,28 @@ const getBudget = async (apiKey, issueIdentifier) => {
   }
 };
 
-const getIssuesFromMilestone = async (
-  apiKey,
-  projectIdentifier,
-  milestoneIdentifier
-) => {
-  const issues = new Set();
-  try {
-    const response = await axios.get(
-      `${redmineUrl}/projects/${projectIdentifier}/issues.json`,
-      { headers: { "X-Redmine-API-Key": apiKey } }
-    );
-    for (let issue in response.data.issues) {
-      try {
-        if (response.data.issues[issue].fixed_version.id == milestoneIdentifier)
-          issues.add(response.data.issues[issue].id);
-      } catch (err) {
-        console.log("Issue not assigned to a version. Passing...");
-      }
-    }
+const fetchProject = async(apiKey, projectIdentifier) => {
+  const project = {}
+  const projectData = await getProjectData(apiKey, projectIdentifier);
+  const projectMilestones = await getProjectMilestones(apiKey, projectIdentifier);
 
-    return issues;
-  } catch (err) {
-    return err.message;
+  project[projectIdentifier] = {"projectData": projectData, "milestoneData": projectMilestones, "projectMilestones": [] };
+
+  for (let milestone in projectMilestones){
+    console.log(milestone)
+    const milestoneData = await getMilestoneData(apiKey, milestone)
+    project[projectIdentifier].projectMilestones = [...project[projectIdentifier].projectMilestones, milestoneData];
   }
+
+  console.log(project)
 };
 
-
-const getMilestonesData = async (apiKey, milestones) => {
-  const milestonesData = {};
-  try {
-    for (let milestone of milestones) {
-      try {
-        const response = await axios.get(
-          `${redmineUrl}/versions/${milestone}.json`,
-          { headers: { "X-Redmine-API-Key": apiKey } }
-        );
-
-        milestonesData[response.data.version.name] = {
-          status: response.data.version.status,
-          mileStoneId: response.data.version.id,
-          estimatedHours: response.data.version.estimated_hours,
-          spentHours: response.data.version.spent_hours
-        };
-      } catch (err) {
-        console.log("Milestone not found. Passing...");
-      }
-    }
-    return milestonesData;
-  } catch (error) {
-    return err.message;
-  }
-};
-
-(async () => console.log(await getMilestonesData(apiKey, '22')))();
+(async () => console.log(await fetchProject(apiKey, projectIdentifier)))();
 
 module.exports = {
   getProjectMilestones,
   getProjectData,
   getBudget,
   getIssuesFromMilestone,
-  getMilestonesData,
+  getMilestoneData,
 }
