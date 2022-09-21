@@ -5,22 +5,27 @@ const cheerio = require("cheerio");
 
 const redmineUrl = process.env.REDMINE_URL;
 
+apiKey = ""
+projectIdentifier = "test-project-budget-check"
 const getProjectMilestones = async (apiKey, projectIdentifier) => {
-  const milestones = new Set();
+  const milestonesData = {};
   try {
     const response = await axios.get(
-
       `${redmineUrl}/projects/${projectIdentifier}/issues.json`,
       { headers: { "X-Redmine-API-Key": apiKey } }
     );
-    for (let issue in response.data.issues) {
+    for (let issue of response.data.issues) {
       try {
-        milestones.add(response.data.issues[issue].fixed_version.id);
+        console.log(issue)
+        if (milestonesData[issue.fixed_version.id] === undefined)
+          milestonesData[issue.fixed_version.id] = { "done_ratio": issue.done_ratio, "issues_count": 1}
+        else
+          milestonesData[issue.fixed_version.id] = { "done_ratio": (milestonesData[issue.fixed_version.id].done_ratio + issue.done_ratio), "issues_count": milestonesData[issue.fixed_version.id].issues_count + 1 }
       } catch (err) {
         console.log("Something went wrong. Unable to find any releases");
       }
     }
-    return milestones;
+    return milestonesData;
   } catch (error) {
     console.error(error);
   }
@@ -35,6 +40,7 @@ const getProjectData = async (apiKey, projectIdentifier) => {
 
     const projectData = {};
     projectData["projectName"] = response.data.project.name;
+    projectData["description"] = response.data.project.description;
 
     for (let customField of response.data.project.custom_fields) {
       if (customField.name == "Project Icon") {
@@ -102,6 +108,7 @@ const getIssuesFromMilestone = async (
   }
 };
 
+
 const getMilestonesData = async (apiKey, milestones) => {
   const milestonesData = {};
   try {
@@ -115,6 +122,8 @@ const getMilestonesData = async (apiKey, milestones) => {
         milestonesData[response.data.version.name] = {
           status: response.data.version.status,
           mileStoneId: response.data.version.id,
+          estimatedHours: response.data.version.estimated_hours,
+          spentHours: response.data.version.spent_hours
         };
       } catch (err) {
         console.log("Milestone not found. Passing...");
@@ -125,6 +134,8 @@ const getMilestonesData = async (apiKey, milestones) => {
     return err.message;
   }
 };
+
+(async () => console.log(await getMilestonesData(apiKey, '22')))();
 
 module.exports = {
   getProjectMilestones,
