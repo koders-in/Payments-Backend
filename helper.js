@@ -14,7 +14,10 @@ const getMilestoneData = async (apiKey, milestone) => {
     );
 
     milestoneData[response.data.version.id] = {
+      title: response.data.version.name,
+      description: response.data.version.description,
       status: response.data.version.status,
+      dueDate: response.data.version.due_date,
       estimatedHours: response.data.version.estimated_hours,
       spentHours: response.data.version.spent_hours
     };
@@ -35,9 +38,9 @@ const getProjectMilestones = async (apiKey, projectIdentifier) => {
     for (let issue of response.data.issues) {
       try {
         if (milestonesData[issue.fixed_version.id] === undefined)
-          milestonesData[issue.fixed_version.id] = { "done_ratio": issue.done_ratio, "issues": [issue.id] }
+          milestonesData[issue.fixed_version.id] = { "doneRatio": issue.done_ratio, "issues": [issue.id] }
         else
-          milestonesData[issue.fixed_version.id] = { "done_ratio": (milestonesData[issue.fixed_version.id].done_ratio + issue.done_ratio), "issues": [...milestonesData[issue.fixed_version.id].issues, issue.id] }
+          milestonesData[issue.fixed_version.id] = { "doneRatio": (milestonesData[issue.fixed_version.id].doneRatio + issue.done_ratio), "issues": [...milestonesData[issue.fixed_version.id].issues, issue.id] }
       } catch (err) {
         console.log("Something went wrong. Unable to find any releases");
       }
@@ -113,7 +116,15 @@ const fetchProject = async(apiKey, projectIdentifier) => {
   const milestones = {}
   for (let milestone in projectMilestones){
     const milestoneData = await getMilestoneData(apiKey, milestone)
-    milestones[milestone] = { "issues": projectMilestones[milestone].issues, "status": milestoneData[milestone].status, "done_ratio": projectMilestones[milestone].done_ratio, "estimatedHours": milestoneData[milestone].estimatedHours, "spentHours": milestoneData[milestone].spentHours
+    milestones[milestone] = { 
+      "title": milestoneData[milestone].title,
+      "description": milestoneData[milestone].description,
+      "issues": projectMilestones[milestone].issues,
+      "status": milestoneData[milestone].status,
+      "dueDate": milestoneData[milestone].dueDate,
+      "doneRatio": projectMilestones[milestone].doneRatio,
+      "estimatedHours": milestoneData[milestone].estimatedHours,
+      "spentHours": milestoneData[milestone].spentHours
     }
   }
   project[projectIdentifier].milestones = milestones;
