@@ -5,7 +5,7 @@ const cors = require("cors");
 const app = express();
 const stripe = require("stripe")(process.env.STRIPE_SK);
 
-const { fetchProject, getBudget} = require("./helper");
+const { fetchProject, getProjectData, getBudget} = require("./helper");
 const appUrl = process.env.APP_URL;
 const port = 9442;
 

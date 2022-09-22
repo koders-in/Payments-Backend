@@ -133,5 +133,6 @@ const fetchProject = async(apiKey, projectIdentifier) => {
 
 module.exports = {
   getBudget,
-  fetchProject
+  fetchProject,
+  getProjectData
 }
