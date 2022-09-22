@@ -9,11 +9,11 @@ const { fetchProject, getBudget} = require("./helper");
 const appUrl = process.env.APP_URL;
 const port = 9442;
 
-// app.use(cors({
-//     origin: appUrl
-// }));
+app.use(cors({
+    origin: appUrl
+}));
 
-app.use(cors()); // ! Remove in production
+// app.use(cors()); // ! Remove in production
 
 app.use(express.json());
 
