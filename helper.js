@@ -18,7 +18,7 @@ const getMilestoneData = async (apiKey, milestone) => {
         description: version.description,
         status: version.status,
         dueDate: version.due_date,
-        paymentStatus: getValueFromArray(version.custom_fields, "Payment"),
+        paymentStatus: getValueFromArray(version.custom_fields, "Payment Status"),
       };
     }
   } catch (err) {
