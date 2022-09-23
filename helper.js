@@ -1,4 +1,5 @@
 require("dotenv").config();
+
 const client = require("./axios");
 const cheerio = require("cheerio");
 const { makeConfig, getValueFromArray } = require("./utils");
@@ -22,6 +23,7 @@ const getMilestoneData = async (apiKey, milestone) => {
     }
   } catch (err) {
     console.log("Milestone not found. Skipping...");
+    return null;
   }
   return milestoneData;
 };
@@ -50,13 +52,15 @@ const getProjectMilestones = async (apiKey, projectIdentifier) => {
               issue.id,
             ],
           };
-      } catch (err) {
-        console.log("Something went wrong. Unable to find any releases");
+      } catch (error) {
+        console.log("Something went wrong. Unable to find any releases", error);
+        return null;
       }
     }
     return milestonesData;
   } catch (error) {
-    console.error(error);
+    console.error("Something went wrong while fetching milestone data.", error);
+    return null;
   }
 };
 
@@ -80,6 +84,7 @@ const getProjectData = async (apiKey, projectIdentifier) => {
     }
   } catch (error) {
     console.error(error);
+    return null;
   }
 };
 
