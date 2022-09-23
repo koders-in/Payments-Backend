@@ -21,7 +21,7 @@ const getMilestoneData = async (apiKey, milestone) => {
       };
     }
   } catch (err) {
-    console.log("Milestone not found. Passing...");
+    console.log("Milestone not found. Skipping...");
   }
   return milestoneData;
 };
@@ -103,7 +103,7 @@ const getBudget = async (apiKey, issueIdentifiers) => {
         }
       }
     } catch (error) {
-      console.log("Something went wrong while calculating budget. Passing...");
+      console.log("Something went wrong while calculating budget. Skipping...");
       return null;
     }
   }
@@ -111,6 +111,7 @@ const getBudget = async (apiKey, issueIdentifiers) => {
 };
 
 const fetchProject = async (apiKey, projectIdentifier) => {
+  try{
   const project = {};
   const projectData = await getProjectData(apiKey, projectIdentifier);
   const projectMilestones = await getProjectMilestones(
@@ -135,6 +136,10 @@ const fetchProject = async (apiKey, projectIdentifier) => {
   }
   project[projectIdentifier].milestones = milestones;
   return project;
+  } catch(error) {
+    console.log("Something went wrong while fetching project details. Skipping...", error);
+    return null;
+  }
 };
 
 module.exports = {
