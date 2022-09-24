@@ -36,7 +36,7 @@ app.post("/get-budget", async (req, res) => {
   const { apiKey, issues } = req.body;
   if (apiKey && issues ) {
     const amount = await getBudget(apiKey, issues);
-    if (data === null && data === "") 
+    if (amount === null && amount === "") 
       res.status(400).json({ msg: "Bad request" });
     else 
       res.status(200).json({ msg: "Budget amount", data: amount });
