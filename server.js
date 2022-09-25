@@ -13,8 +13,6 @@ app.use(cors({
     origin: appUrl
 }));
 
-// app.use(cors()); // ! Remove in production
-
 app.use(express.json());
 
 app.get("/", (_, res) => {
@@ -25,10 +23,10 @@ app.post("/get-project", async (req, res) => {
   const { apiKey, projectIdentifier } = req.body;
   if (apiKey && projectIdentifier) {
     const data = await fetchProject(apiKey, projectIdentifier);
-    if (data === null && data === "") 
-      res.status(400).json({ msg: "Bad request" });
-    else 
+    if (data !== null && data !== "") 
       res.status(200).json({ msg: "Project Details", data: data });
+    else 
+      res.status(400).json({ msg: "Bad request" });
   } else res.status(404).json({ msg: "Some keys are missing", data: null });
 });
 
