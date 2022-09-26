@@ -20,12 +20,13 @@ const getMilestoneData = async (apiKey, milestone) => {
         dueDate: version.due_date,
         paymentStatus: getValueFromArray(version.custom_fields, "Payment Status"),
       };
+      return milestoneData;
     }
   } catch (err) {
     console.log("Milestone not found. Skipping...");
     return null;
   }
-  return milestoneData;
+  return null;
 };
 
 const getProjectMilestones = async (apiKey, projectIdentifier) => {
