@@ -18,7 +18,12 @@ const getMilestoneData = async (apiKey, milestone) => {
         description: version.description,
         status: version.status,
         dueDate: version.due_date,
-        paymentStatus: getValueFromArray(version.custom_fields, "Payment Status"),
+        demoLink: getValueFromArray(version.custom_fields, "Demo Link"),
+        filesLink: getValueFromArray(version.custom_fields, "Files Link"),
+        paymentStatus: getValueFromArray(
+          version.custom_fields,
+          "Payment Status"
+        ),
       };
       return milestoneData;
     }
@@ -117,33 +122,38 @@ const getBudget = async (apiKey, issueIdentifiers) => {
 };
 
 const fetchProject = async (apiKey, projectIdentifier) => {
-  try{
-  const project = {};
-  const projectData = await getProjectData(apiKey, projectIdentifier);
-  const projectMilestones = await getProjectMilestones(
-    apiKey,
-    projectIdentifier
-  );
+  try {
+    const project = {};
+    const projectData = await getProjectData(apiKey, projectIdentifier);
+    const projectMilestones = await getProjectMilestones(
+      apiKey,
+      projectIdentifier
+    );
 
-  project[projectIdentifier] = { projectData: projectData };
+    project[projectIdentifier] = { projectData: projectData };
 
-  const milestones = {};
-  for (let milestone in projectMilestones) {
-    const milestoneData = await getMilestoneData(apiKey, milestone);
-    milestones[milestone] = {
-      title: milestoneData[milestone].title,
-      description: milestoneData[milestone].description,
-      issues: projectMilestones[milestone].issues,
-      status: milestoneData[milestone].status,
-      dueDate: milestoneData[milestone].dueDate,
-      doneRatio: projectMilestones[milestone].doneRatio,
-      paymentStatus: milestoneData[milestone].paymentStatus,
-    };
-  }
-  project[projectIdentifier].milestones = milestones;
-  return project;
-  } catch(error) {
-    console.log("Something went wrong while fetching project details. Skipping...", error);
+    const milestones = {};
+    for (let milestone in projectMilestones) {
+      const milestoneData = await getMilestoneData(apiKey, milestone);
+      milestones[milestone] = {
+        title: milestoneData[milestone].title,
+        description: milestoneData[milestone].description,
+        issues: projectMilestones[milestone].issues,
+        status: milestoneData[milestone].status,
+        dueDate: milestoneData[milestone].dueDate,
+        doneRatio: projectMilestones[milestone].doneRatio,
+        paymentStatus: milestoneData[milestone].paymentStatus,
+        demoLink: milestoneData[milestone].demoLink,
+        filesLink: milestoneData[milestone].filesLink,
+      };
+    }
+    project[projectIdentifier].milestones = milestones;
+    return project;
+  } catch (error) {
+    console.log(
+      "Something went wrong while fetching project details. Skipping...",
+      error
+    );
     return null;
   }
 };

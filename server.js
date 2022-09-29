@@ -5,13 +5,15 @@ const cors = require("cors");
 const app = express();
 const stripe = require("stripe")(process.env.STRIPE_SK);
 
-const { fetchProject, getProjectData, getBudget} = require("./helper");
+const { fetchProject, getProjectData, getBudget } = require("./helper");
 const appUrl = process.env.APP_URL;
 const port = 9442;
 
-app.use(cors({
-    origin: appUrl
-}));
+app.use(
+  cors({
+    origin: appUrl,
+  })
+);
 
 app.use(express.json());
 
@@ -23,21 +25,19 @@ app.post("/get-project", async (req, res) => {
   const { apiKey, projectIdentifier } = req.body;
   if (apiKey && projectIdentifier) {
     const data = await fetchProject(apiKey, projectIdentifier);
-    if (data !== null && data !== "") 
+    if (data !== null && data !== "")
       res.status(200).json({ msg: "Project Details", data: data });
-    else 
-      res.status(400).json({ msg: "Bad request" });
+    else res.status(400).json({ msg: "Bad request" });
   } else res.status(404).json({ msg: "Some keys are missing", data: null });
 });
 
 app.post("/get-budget", async (req, res) => {
   const { apiKey, issues } = req.body;
-  if (apiKey && issues ) {
+  if (apiKey && issues) {
     const amount = await getBudget(apiKey, issues);
-    if (amount === null && amount === "") 
+    if (amount === null && amount === "")
       res.status(400).json({ msg: "Bad request" });
-    else 
-      res.status(200).json({ msg: "Budget amount", data: amount });
+    else res.status(200).json({ msg: "Budget amount", data: amount });
   } else res.status(404).json({ msg: "Some keys are missing", data: null });
 });
 
