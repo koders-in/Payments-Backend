@@ -11,7 +11,7 @@ const port = 9442;
 
 app.use(
   cors({
-    origin: appUrl,
+    origin: API_URL,
   })
 );
 
