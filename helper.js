@@ -99,7 +99,7 @@ const getBudget = async (apiKey, issueIdentifiers) => {
   for (let issue of issueIdentifiers) {
     try {
       const { data } = await client.get(
-        `/issues/${issue}?token${apiKey}`,
+        `/issues/${issue}?token=${apiKey}`,
         makeConfig(apiKey, true)
       );
 
