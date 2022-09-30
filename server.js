@@ -66,7 +66,7 @@ app.post("/checkout", async (req, res) => {
         },
       ],
       mode: "payment",
-      success_url: `${appUrl}/success`,
+      success_url: `${appUrl}/#/success`,
       cancel_url: `${appUrl}/`,
     });
     res.status(200).json({ msg: "Checkout URL", data: session.url });
