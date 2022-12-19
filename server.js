@@ -4,10 +4,13 @@ const express = require("express");
 const cors = require("cors");
 const app = express();
 const stripe = require("stripe")(process.env.STRIPE_SK);
+
 const couponManager = require("./coupon");
 const { fetchProject, getProjectData, getBudget } = require("./helper");
+
 const appUrl = process.env.APP_URL;
 const port = 9442;
+const serverHost = `http://localhost:${port}`;
 
 app.use(
   cors({
@@ -25,7 +28,6 @@ app.post("/get-project", async (req, res) => {
   const { apiKey, projectIdentifier } = req.body;
   if (apiKey && projectIdentifier) {
     const data = await fetchProject(apiKey, projectIdentifier);
-    console.log(data);
     if (data !== null && data !== "") {
       res.status(200).json({ msg: "Project Details", data });
     } else res.status(400).json({ msg: "Bad request" });
@@ -43,21 +45,41 @@ app.post("/get-budget", async (req, res) => {
 });
 
 app.post("/coupon", async (req, res) => {
-  const { apiKey, issues, coupon } = req.body;
+  const { apiKey, issues, coupon, pid } = req.body;
   if (apiKey && issues && coupon) {
     const amount = await getBudget(apiKey, issues);
     if (!(amount === null && amount === "")) {
       // tags array from Redmine
       const tags = ["all", "backend", "kode100"];
-      const couponRes = couponManager.calculate(amount, coupon, tags);
-      if (typeof couponRes === "string") {
-        res.status(200).json({ msg: couponRes, data: null });
+      const result = couponManager.calculate(amount, coupon, tags, pid);
+      let code = 0;
+      if (result !== undefined) {
+        if (result.isValid) {
+          code = 200;
+        } else {
+          code = 201;
+        }
       } else {
-        // dont chnage this msg key because in frontend we use this
-        res.status(200).json({ msg: "Budget amount", data: couponRes });
+        code = 201;
       }
+      res.status(code).json({ msg: result.msg, data: result.data });
     } else res.status(400).json({ msg: "Bad request" });
   } else res.status(404).json({ msg: "Some keys are missing", data: null });
+});
+
+app.get("/stripe-redirect/:id", (req, res) => {
+  const paramValue = req.params["id"];
+  let url = "";
+  if (paramValue !== undefined) {
+    if (paramValue.toLowerCase() === "cancel") {
+      url = `https://payments.koders.in/`;
+    } else {
+      const pid = req.query["pid"];
+      url = `https://payments.koders.in/#/success`;
+      couponManager.updateCsvFile(pid);
+    }
+  }
+  res.status(302).redirect(url);
 });
 
 app.post("/checkout", async (req, res) => {
@@ -88,8 +110,8 @@ app.post("/checkout", async (req, res) => {
         },
       ],
       mode: "payment",
-      success_url: `${appUrl}/#/success`,
-      cancel_url: `${appUrl}/`,
+      success_url: `${serverHost}/stripe-redirect/success?pid=${projectIdentifier}`,
+      cancel_url: `${serverHost}/stripe-redirect/cancel`,
     });
     res.status(200).json({ msg: "Checkout URL", data: session.url });
   } else res.status(404).json({ msg: "Some keys are missing", data: null });
@@ -101,5 +123,5 @@ app.get("*", function (req, res) {
 });
 
 app.listen(port, () => {
-  console.log(`Koders payment app listening at http://localhost:${port}`);
+  console.log(`Koders payment app listening at ${serverHost}`);
 });
