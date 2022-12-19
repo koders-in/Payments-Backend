@@ -3,22 +3,39 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const app = express();
-const stripe = require("stripe")(process.env.STRIPE_SK);
+const data = require("./config.json");
+// const stripe = require("stripe")(process.env.STRIPE_SK);
+const stripe = require("stripe")(data.strip_api_key);
 
 const couponManager = require("./coupon");
-const { fetchProject, getProjectData, getBudget } = require("./helper");
+const {
+  fetchProject,
+  getProjectData,
+  getBudget,
+  getTagsFromIssues,
+} = require("./helper");
 
 const appUrl = process.env.APP_URL;
 const port = 9442;
 const serverHost = `http://localhost:${port}`;
 
-app.use(
-  cors({
-    origin: appUrl,
-  })
-);
+// uncomment in production
+// app.use(
+//   cors({
+//     origin: appUrl,
+//   })
+// );
+
+// remove in production
+app.use(cors({}));
 
 app.use(express.json());
+
+// remove in production
+app.use((req, res, next) => {
+  console.log(req.body);
+  next();
+});
 
 app.get("/", (_, res) => {
   res.send("Payment API is working perfectly");
@@ -50,7 +67,9 @@ app.post("/coupon", async (req, res) => {
     const amount = await getBudget(apiKey, issues);
     if (!(amount === null && amount === "")) {
       // tags array from Redmine
-      const tags = ["all", "backend", "kode100"];
+      const tags = await getTagsFromIssues(apiKey, issues);
+      if (tags === undefined && tags.length === 0)
+        res.status(code).json({ msg: "Try again later", data: null });
       const result = couponManager.calculate(amount, coupon, tags, pid);
       let code = 0;
       if (result !== undefined) {

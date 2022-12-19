@@ -22,4 +22,12 @@ const getValueFromArray = (array = [], key = "") => {
   return null;
 };
 
-module.exports = { makeConfig, getValueFromArray };
+const parseValueFromArray = (array = []) => {
+  let list = [];
+  for (let item of array) {
+    list.push(item.name?.toLowerCase());
+  }
+  return list;
+};
+
+module.exports = { makeConfig, getValueFromArray, parseValueFromArray };

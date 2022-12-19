@@ -2,7 +2,11 @@ require("dotenv").config();
 
 const client = require("./axios");
 const cheerio = require("cheerio");
-const { makeConfig, getValueFromArray } = require("./utils");
+const {
+  makeConfig,
+  getValueFromArray,
+  parseValueFromArray,
+} = require("./utils");
 
 const getMilestoneData = async (apiKey, milestone) => {
   const milestoneData = {};
@@ -158,10 +162,29 @@ const fetchProject = async (apiKey, projectIdentifier) => {
   }
 };
 
-// tag
+// tags retreive
+
+const getTagsFromIssues = async (apiKey, issues) => {
+  if (issues === undefined) return;
+  const tagsList = [];
+  for (const issue of issues) {
+    const { data, status } = await client.get(
+      `/issues/${issue}.json`,
+      makeConfig(apiKey)
+    );
+    if (status === 200) {
+      const tags = data["issue"]["tags"];
+      tagsList.push(...tags);
+    }
+  }
+
+  if (tagsList.length > 0) return parseValueFromArray(tagsList);
+  else return undefined;
+};
 
 module.exports = {
   getBudget,
   fetchProject,
   getProjectData,
+  getTagsFromIssues,
 };
