@@ -3,39 +3,22 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const app = express();
-const data = require("./config.json");
-// const stripe = require("stripe")(process.env.STRIPE_SK);
-const stripe = require("stripe")(data.strip_api_key);
+const stripe = require("stripe")(process.env.STRIPE_SK);
 
 const couponManager = require("./coupon");
-const {
-  fetchProject,
-  getProjectData,
-  getBudget,
-  getTagsFromIssues,
-} = require("./helper");
+const { fetchProject, getProjectData, getBudget } = require("./helper");
 
 const appUrl = process.env.APP_URL;
 const port = 9442;
 const serverHost = `http://localhost:${port}`;
 
-// uncomment in production
-// app.use(
-//   cors({
-//     origin: appUrl,
-//   })
-// );
-
-// remove in production
-app.use(cors({}));
+app.use(
+  cors({
+    origin: appUrl,
+  })
+);
 
 app.use(express.json());
-
-// remove in production
-app.use((req, res, next) => {
-  console.log(req.body);
-  next();
-});
 
 app.get("/", (_, res) => {
   res.send("Payment API is working perfectly");
@@ -66,22 +49,19 @@ app.post("/coupon", async (req, res) => {
   if (apiKey && issues && coupon) {
     const amount = await getBudget(apiKey, issues);
     if (!(amount === null && amount === "")) {
-      // tags array from Redmine
-      const tags = await getTagsFromIssues(apiKey, issues);
-      if (tags === undefined && tags.length === 0)
-        res.status(code).json({ msg: "Try again later", data: null });
-      const result = couponManager.calculate(amount, coupon, tags, pid);
-      let code = 0;
+      const result = couponManager.calculate(
+        amount,
+        coupon,
+        pid,
+        apiKey,
+        issues
+      );
+      let code = 200;
       if (result !== undefined) {
-        if (result.isValid) {
-          code = 200;
-        } else {
-          code = 201;
-        }
-      } else {
-        code = 201;
-      }
-      res.status(code).json({ msg: result.msg, data: result.data });
+        if (result.isValid) code = 200;
+        else code = 400;
+      } else code = 400;
+      res.status(code).send(result);
     } else res.status(400).json({ msg: "Bad request" });
   } else res.status(404).json({ msg: "Some keys are missing", data: null });
 });
@@ -91,10 +71,10 @@ app.get("/stripe-redirect/:id", (req, res) => {
   let url = "";
   if (paramValue !== undefined) {
     if (paramValue.toLowerCase() === "cancel") {
-      url = `https://payments.koders.in/`;
+      url = `${appUrl}/`;
     } else {
       const pid = req.query["pid"];
-      url = `https://payments.koders.in/#/success`;
+      url = `${appUrl}/#/success`;
       couponManager.updateCsvFile(pid);
     }
   }

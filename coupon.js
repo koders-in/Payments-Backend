@@ -3,6 +3,7 @@ const csvjson = require("csvjson");
 const path = require("path");
 const moment = require("moment");
 const { stringify } = require("csv-stringify");
+const { getTagsFromIssues } = require("./helper");
 // Don't change
 const couponHeader = {
   type: "type",
@@ -157,11 +158,8 @@ class CouponManager {
     return true;
   }
 
-  isValidTag(tagArr = [], targtedTag) {
-    for (const tag of tagArr) {
-      if (tag.toLowerCase().includes(targtedTag.toLowerCase())) return true;
-    }
-    return false;
+  async isValidTag(tag, apiKey, issues) {
+    return await getTagsFromIssues(apiKey, issues, tag);
   }
 
   getProject(pid) {
@@ -238,7 +236,7 @@ class CouponManager {
     }
   }
 
-  calculate(budget, code, tagArr = [], pid) {
+  calculate(budget, code, pid, apiKey, issues = []) {
     const coupon = this.parseCouponCode(code);
     if (!this.isValidCode(coupon))
       return this.createResponse("INVALID_COUPON_CODE", false, null);
@@ -249,8 +247,8 @@ class CouponManager {
       return this.createResponse("ALREADY_APPLIED_ON_THIS_PID", false, data);
     if (this.isCouponExpired(couponDetail, coupon))
       return this.createResponse("EXPIRED_COUPON", false, null);
-    if (!this.isValidTag(tagArr, couponDetail.projectTag))
-      return this.createResponse("NOT_APPLICABLE", false, null);
+    if (!this.isValidTag(couponDetail.projectTag, apiKey, issues))
+      return this.createResponse("TAG_NOT_MATCHED", false, null);
     if (!this.isCouponLeft(couponDetail))
       return this.createResponse("NO_COUPON_LEFT", false, null);
     const { amount, result } = this.isValidAmount(budget);
