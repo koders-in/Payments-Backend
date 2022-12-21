@@ -4,6 +4,7 @@ const express = require("express");
 const cors = require("cors");
 const app = express();
 const data = require("./config.json");
+// TODO => Use this in production
 // const stripe = require("stripe")(process.env.STRIPE_SK);
 const stripe = require("stripe")(data.strip_api_key);
 
@@ -69,7 +70,7 @@ app.post("/coupon", async (req, res) => {
       // tags array from Redmine
       const tags = await getTagsFromIssues(apiKey, issues);
       if (tags === undefined && tags.length === 0)
-        res.status(code).json({ msg: "Try again later", data: null });
+        res.status(400).json({ msg: "Tags not found. Try again later", data: null });
       const result = couponManager.calculate(amount, coupon, tags, pid);
       let code = 0;
       if (result !== undefined) {
@@ -79,7 +80,7 @@ app.post("/coupon", async (req, res) => {
           code = 201;
         }
       } else {
-        code = 201;
+        code = 201;  // FIX => Bad requests 
       }
       res.status(code).json({ msg: result.msg, data: result.data });
     } else res.status(400).json({ msg: "Bad request" });

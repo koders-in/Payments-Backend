@@ -3,7 +3,6 @@ const csvjson = require("csvjson");
 const path = require("path");
 const moment = require("moment");
 const { stringify } = require("csv-stringify");
-// Don't change
 const couponHeader = {
   type: "type",
   validity: "validity",
