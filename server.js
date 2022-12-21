@@ -61,7 +61,7 @@ app.post("/coupon", async (req, res) => {
         if (result.isValid) code = 200;
         else code = 400;
       } else code = 400;
-      res.status(code).send(result);
+      res.status(code).json(result);
     } else res.status(400).json({ msg: "Bad request" });
   } else res.status(404).json({ msg: "Some keys are missing", data: null });
 });
