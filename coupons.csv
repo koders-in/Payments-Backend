@@ -1,0 +1,2 @@
+type,validity,description,couponCode,value,projectTag,couponQty,minAmount,id
+FLAT,2022-12-23,,kode500,20,api,92,90,1
