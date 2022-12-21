@@ -51,7 +51,7 @@ jobs:
       uses: fifsky/ssh-action@master
       with:
         command: |
-          docker run -d -p 9442:9442 --network host --name payments-backend -e REDMINE_URL=http://localhost:9550 -e STRIPE_SK=${{ secrets.STRIPE_SK }} -e APP_URL=https://payments.koders.in -v /home/panther/payments:/usr/src/app ${{ secrets.DOCKER_HUB_USERNAME }}/payments-backend
+          docker run -d -p 9442:9442 --network host --name payments-backend -e REDMINE_URL=http://localhost:9550 -e STRIPE_SK=${{ secrets.STRIPE_SK }} -e APP_URL=https://payments.koders.in -v /home/panther/payments:/usr/src/app/storage ${{ secrets.DOCKER_HUB_USERNAME }}/payments-backend
         host: ${{ secrets.HOST }}
         user: ${{ secrets.USERNAME }}
         pass: ${{ secrets.PASSWORD}}
