@@ -38,14 +38,18 @@ class CouponManager {
     this.readCoupons();
   }
 
+  createPath(fileName) {
+    return path.join(__dirname, "storage", fileName);
+  }
+
   readCsvFile(fileName) {
-    return fs.readFileSync(path.join(__dirname, fileName), {
+    return fs.readFileSync(this.createPath(fileName), {
       encoding: "utf8",
     });
   }
 
   isFileExist(fileName) {
-    return fs.existsSync(fileName);
+    return fs.existsSync(this.createPath(fileName));
   }
 
   readCoupons() {
