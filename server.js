@@ -11,24 +11,15 @@ const appUrl = process.env.APP_URL;
 const port = 9442;
 const serverHost = `http://localhost:${port}`;
 
-// TODO:-> uncomment in prod
-// app.use(
-//   cors({
-//     origin: appUrl,
-//   })
-// );
+app.use(
+  cors({
+    origin: appUrl,
+  })
+);
 
-// TODO:-> remove in prod
 app.use(cors());
 
 app.use(express.json());
-
-// TODO:-> remove in prod
-app.use((req, res, next) => {
-  console.log(`${req.method}-${req.path}`);
-  console.log(req.body);
-  next();
-});
 
 app.get("/", (_, res) => {
   res.send("Payment API is working perfectly");
