@@ -2,11 +2,7 @@ require("dotenv").config();
 
 const client = require("./axios");
 const cheerio = require("cheerio");
-const {
-  makeConfig,
-  getValueFromArray,
-  parseValueFromArray,
-} = require("./utils");
+const { makeConfig, getValueFromArray } = require("./utils");
 
 const getMilestoneData = async (apiKey, milestone) => {
   const milestoneData = {};
@@ -174,7 +170,6 @@ const getTagsFromIssues = async (apiKey, issues, targtedTag) => {
     if (status === 200) {
       const tags = data["issue"]["tags"];
       for (const tag of tags) {
-        console.log(tag);
         if (tag.name.toLowerCase().includes(targtedTag.toLowerCase()))
           return true;
       }
