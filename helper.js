@@ -158,8 +158,30 @@ const fetchProject = async (apiKey, projectIdentifier) => {
   }
 };
 
+// tags retreive
+
+const getTagsFromIssues = async (apiKey, issues, targtedTag) => {
+  if (issues === undefined) return false;
+  for (const issue of issues) {
+    const { data, status } = await client.get(
+      `/issues/${issue}.json`,
+      makeConfig(apiKey)
+    );
+    if (status === 200) {
+      const tags = data["issue"]["tags"];
+      for (const tag of tags) {
+        if (tag.name.toLowerCase().includes(targtedTag.toLowerCase()))
+          return true;
+      }
+    }
+  }
+
+  return false;
+};
+
 module.exports = {
   getBudget,
   fetchProject,
   getProjectData,
+  getTagsFromIssues,
 };
