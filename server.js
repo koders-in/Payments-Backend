@@ -88,6 +88,7 @@ app.post("/checkout", async (req, res) => {
     milestoneUnitAmount: amount,
     apiKey,
     projectIdentifier,
+    type,
   } = req.body;
   const { projectName, projectIcon } = await getProjectData(
     apiKey,
@@ -98,13 +99,13 @@ app.post("/checkout", async (req, res) => {
       line_items: [
         {
           price_data: {
-            currency: "inr",
+            currency: type.toLowerCase(),
             product_data: {
               name: projectName,
               description: milestoneTitle,
               images: [projectIcon],
             },
-            unit_amount: amount * 100,
+            unit_amount: Math.round(Number(amount)) * 100,
           },
           quantity: 1,
         },
