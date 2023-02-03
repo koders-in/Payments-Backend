@@ -38,7 +38,7 @@ const getProjectMilestones = async (apiKey, projectIdentifier) => {
   const milestonesData = {};
   try {
     const response = await client.get(
-      `/projects/${projectIdentifier}/issues.json`,
+      `/projects/${projectIdentifier}/issues.json?status_id=*&limit=100`,
       makeConfig(apiKey)
     );
     for (let issue of response.data.issues) {
