@@ -2,7 +2,7 @@ require("dotenv").config();
 
 const client = require("./axios");
 const cheerio = require("cheerio");
-const { makeConfig, getValueFromArray } = require("./utils");
+const { makeConfig, getValueFromArray, fetchData } = require("./utils");
 
 const getMilestoneData = async (apiKey, milestone) => {
   const milestoneData = {};
@@ -179,9 +179,37 @@ const getTagsFromIssues = async (apiKey, issues, targtedTag) => {
   return false;
 };
 
+async function getInvoiceDetails(project) {
+  try {
+    if (!project) return null;
+    const projectDetails = await fetchData(`/projects/${project}.json`);
+    if (projectDetails !== null) {
+      const invoiceField = projectDetails?.project?.custom_fields.filter(
+        (item) => item.name === "Invoice id"
+      );
+      const invoiceDetails = await fetchData(
+        `/invoices/${invoiceField[0].value}.json`
+      );
+      if (invoiceDetails !== null) {
+        const contactDetails = await fetchData(
+          `/contacts/${invoiceDetails?.invoice?.contact?.id}.json`
+        );
+        return {
+          projectData: projectDetails?.project,
+          invoiceData: invoiceDetails.invoice,
+          contactDetails: contactDetails ? contactDetails?.contact : null,
+        };
+      } else return null;
+    } else return null;
+  } catch (error) {
+    return null;
+  }
+}
+
 module.exports = {
   getBudget,
   fetchProject,
   getProjectData,
   getTagsFromIssues,
+  getInvoiceDetails,
 };

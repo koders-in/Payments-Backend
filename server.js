@@ -5,7 +5,12 @@ const cors = require("cors");
 const app = express();
 const stripe = require("stripe")(process.env.STRIPE_SK);
 const couponManager = require("./coupon");
-const { fetchProject, getProjectData, getBudget } = require("./helper");
+const {
+  fetchProject,
+  getProjectData,
+  getBudget,
+  getInvoiceDetails,
+} = require("./helper");
 
 const appUrl = process.env.APP_URL;
 const port = 9442;
@@ -114,6 +119,26 @@ app.post("/checkout", async (req, res) => {
     });
     res.status(200).json({ msg: "Checkout URL", data: session.url });
   } else res.status(404).json({ msg: "Some keys are missing", data: null });
+});
+
+app.post("/invoice", async (req, res) => {
+  try {
+    const {
+      data: { project },
+    } = req.body;
+    if (!project) {
+      res
+        .status(400)
+        .json({ message: "Bad request! project parameter is required." });
+      return;
+    }
+    const response = await getInvoiceDetails(project);
+    if (response === null)
+      res.status(500).json({ message: "Internal Server Error" });
+    else res.status(200).json(response);
+  } catch (error) {
+    res.status(500).json({ message: "Internal Server Error" });
+  }
 });
 
 app.get("*", function (req, res) {

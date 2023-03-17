@@ -1,3 +1,7 @@
+const client = require("./axios");
+
+require("dotenv").config();
+
 const makeConfig = (apiKey, isUA = false) => {
   if (!isUA) {
     return {
@@ -30,4 +34,25 @@ const parseValueFromArray = (array = []) => {
   return list;
 };
 
-module.exports = { makeConfig, getValueFromArray, parseValueFromArray };
+async function fetchData(endpoint) {
+  try {
+    const res = await client.get(endpoint, {
+      headers: {
+        "X-Redmine-API-Key": process.env.REDMINE_API_KEY,
+        "User-Agent":
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.5112.102 Safari/537.36 OPR/90.0.4480.78 (Edition std-1)",
+      },
+    });
+    if (res.statusText === "OK") return res.data;
+    else return null;
+  } catch (error) {
+    return null;
+  }
+}
+
+module.exports = {
+  makeConfig,
+  getValueFromArray,
+  parseValueFromArray,
+  fetchData,
+};
