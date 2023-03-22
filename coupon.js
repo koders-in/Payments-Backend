@@ -5,6 +5,8 @@ const moment = require("moment");
 const { stringify } = require("csv-stringify");
 const { getTagsFromIssues } = require("./helper");
 // Don't change
+
+// TODO => Attach it with google sheets
 const couponHeader = {
   type: "type",
   validity: "validity",
