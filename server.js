@@ -124,15 +124,15 @@ app.post("/checkout", async (req, res) => {
 app.post("/invoice", async (req, res) => {
   try {
     const {
-      data: { project },
+      data: { project, apiKey },
     } = req.body;
-    if (!project) {
+    if (!project && !apiKey) {
       res
         .status(400)
-        .json({ message: "Bad request! project parameter is required." });
+        .json({ message: "Bad request! All parameter's are required." });
       return;
     }
-    const response = await getInvoiceDetails(project);
+    const response = await getInvoiceDetails(project, apiKey);
     if (response === null)
       res.status(500).json({ message: "Internal Server Error" });
     else res.status(200).json(response);

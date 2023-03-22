@@ -179,20 +179,22 @@ const getTagsFromIssues = async (apiKey, issues, targtedTag) => {
   return false;
 };
 
-async function getInvoiceDetails(project) {
+async function getInvoiceDetails(project, apiKey) {
   try {
     if (!project) return null;
-    const projectDetails = await fetchData(`/projects/${project}.json`);
+    const projectDetails = await fetchData(`/projects/${project}.json`, apiKey);
     if (projectDetails !== null) {
       const invoiceField = projectDetails?.project?.custom_fields.filter(
         (item) => item.name === "Invoice id"
       );
       const invoiceDetails = await fetchData(
-        `/invoices/${invoiceField[0].value}.json`
+        `/invoices/${invoiceField[0].value}.json`,
+        apiKey
       );
       if (invoiceDetails !== null) {
         const contactDetails = await fetchData(
-          `/contacts/${invoiceDetails?.invoice?.contact?.id}.json`
+          `/contacts/${invoiceDetails?.invoice?.contact?.id}.json`,
+          apiKey
         );
         return {
           projectData: projectDetails?.project,
