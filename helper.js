@@ -196,6 +196,9 @@ async function getInvoiceDetails(project, apiKey) {
           `/contacts/${invoiceDetails?.invoice?.contact?.id}.json`,
           apiKey
         );
+        console.log(projectData);
+        console.log(invoiceData);
+        console.log(contactDetails);
         return {
           projectData: projectDetails?.project,
           invoiceData: invoiceDetails.invoice,
