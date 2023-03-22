@@ -46,6 +46,7 @@ async function fetchData(endpoint, apiKey) {
     if (res.statusText === "OK") return res.data;
     else return null;
   } catch (error) {
+    console.log(error);
     return null;
   }
 }

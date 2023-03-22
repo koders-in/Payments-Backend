@@ -77,7 +77,7 @@ const getProjectData = async (apiKey, projectIdentifier) => {
       makeConfig(apiKey)
     );
 
-    const projectData = {};
+    let projectData = {};
     if (status === 200) {
       const { project } = data;
       projectData["projectName"] = project.name;
@@ -196,9 +196,6 @@ async function getInvoiceDetails(project, apiKey) {
           `/contacts/${invoiceDetails?.invoice?.contact?.id}.json`,
           apiKey
         );
-        console.log(projectData);
-        console.log(invoiceData);
-        console.log(contactDetails);
         return {
           projectData: projectDetails?.project,
           invoiceData: invoiceDetails.invoice,
@@ -207,6 +204,7 @@ async function getInvoiceDetails(project, apiKey) {
       } else return null;
     } else return null;
   } catch (error) {
+    console.log(error);
     return null;
   }
 }
