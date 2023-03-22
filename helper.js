@@ -194,6 +194,9 @@ async function getInvoiceDetails(project) {
         const contactDetails = await fetchData(
           `/contacts/${invoiceDetails?.invoice?.contact?.id}.json`
         );
+        console.log(projectData);
+        console.log(invoiceData);
+        console.log(contactDetails);
         return {
           projectData: projectDetails?.project,
           invoiceData: invoiceDetails.invoice,

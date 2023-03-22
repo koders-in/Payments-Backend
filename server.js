@@ -133,6 +133,7 @@ app.post("/invoice", async (req, res) => {
       return;
     }
     const response = await getInvoiceDetails(project);
+    console.log(response);
     if (response === null)
       res.status(500).json({ message: "Internal Server Error" });
     else res.status(200).json(response);
