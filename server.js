@@ -18,6 +18,19 @@ const serverHost = `http://localhost:${port}`;
 
 app.use(express.json());
 app.use(cors({ origin: ["https://raagwaas.com/", appUrl] }));
+app.use(function (req, res, next) {
+  const origin = req.getHeader("Origin");
+  if (origin == null || origin.length() == 0) {
+    origin = [appUrl, "https://raagwaas.com"];
+  }
+  res.setHeader("Access-Control-Allow-Origin", origin);
+  res.setHeader("Access-Control-Allow-Credentials", "true");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Authorization");
+  res.setHeader("Access-Control-Max-Age", "1");
+  res.setHeader("Vary", "*");
+  next();
+});
 
 app.get("/", (_, res) => {
   res.send("Payment API is working perfectly");
