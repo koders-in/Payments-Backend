@@ -16,25 +16,19 @@ const appUrl = process.env.APP_URL;
 const port = 9442;
 const serverHost = `http://localhost:${port}`;
 
-// app.use(cors({ origin: ["https://raagwaas.com/", appUrl] }));
-// var allowedOrigins = [appUrl, "https://raagwaas.com"];
-// {
-//   origin: function (origin, callback) {
-//     if (!origin) return callback(null, true);
-//     if (allowedOrigins.indexOf(origin) === -1) {
-//       var msg =
-//         "The CORS policy for this site does not " +
-//         "allow access from the specified Origin.";
-//       return callback(new Error(msg), false);
-//     }
-//     return callback(null, true);
-//   },
-// }
-app.use(
-  cors({
-    origin: "*",
-  })
-);
+app.use(function (req, res, next) {
+  const origin = req.getHeader("Origin");
+  if (origin == null || origin.length() == 0) {
+    origin = [appUrl, "https://raagwaas.com"];
+  }
+  resp.setHeader("Access-Control-Allow-Origin", origin);
+  resp.setHeader("Access-Control-Allow-Credentials", "true");
+  resp.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  resp.setHeader("Access-Control-Allow-Headers", "Authorization");
+  resp.setHeader("Access-Control-Max-Age", "1");
+  resp.setHeader("Vary", "*");
+  next();
+});
 
 app.use(express.json());
 
