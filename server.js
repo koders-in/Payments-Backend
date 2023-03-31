@@ -25,14 +25,14 @@ var corsOptions = {
     }
   },
 };
-app.use(cors(corsOptions));
+// app.use(cors(corsOptions));
 app.use(express.json());
 
 app.get("/", (_, res) => {
   res.send("Payment API is working perfectly");
 });
 
-app.post("/get-project", async (req, res) => {
+app.post("/get-project", cors(corsOptions), async (req, res) => {
   const { apiKey, projectIdentifier } = req.body;
   if (apiKey && projectIdentifier) {
     const data = await fetchProject(apiKey, projectIdentifier);
@@ -42,7 +42,7 @@ app.post("/get-project", async (req, res) => {
   } else res.status(404).json({ msg: "Some keys are missing", data: null });
 });
 
-app.post("/get-budget", async (req, res) => {
+app.post("/get-budget", cors(corsOptions), async (req, res) => {
   const { apiKey, issues } = req.body;
   if (apiKey && issues) {
     const amount = await getBudget(apiKey, issues);
@@ -52,7 +52,7 @@ app.post("/get-budget", async (req, res) => {
   } else res.status(404).json({ msg: "Some keys are missing", data: null });
 });
 
-app.post("/coupon", async (req, res) => {
+app.post("/coupon", cors(corsOptions), async (req, res) => {
   const { apiKey, issues, coupon, pid } = req.body;
   if (apiKey && issues && coupon) {
     const amount = await getBudget(apiKey, issues);
@@ -74,7 +74,7 @@ app.post("/coupon", async (req, res) => {
   } else res.status(404).json({ msg: "Some keys are missing", data: null });
 });
 
-app.get("/stripe-redirect/:id", (req, res) => {
+app.get("/stripe-redirect/:id", cors(corsOptions), (req, res) => {
   const paramValue = req.params["id"];
   let url = "";
   if (paramValue !== undefined) {
@@ -89,7 +89,7 @@ app.get("/stripe-redirect/:id", (req, res) => {
   res.status(302).redirect(url);
 });
 
-app.post("/checkout", async (req, res) => {
+app.post("/checkout", cors(corsOptions), async (req, res) => {
   const {
     milestoneTitle,
     milestoneUnitAmount: amount,
@@ -125,7 +125,7 @@ app.post("/checkout", async (req, res) => {
   } else res.status(404).json({ msg: "Some keys are missing", data: null });
 });
 
-app.post("/invoice", async (req, res) => {
+app.post("/invoice", cors(corsOptions), async (req, res) => {
   try {
     const {
       data: { project, apiKey },
@@ -146,7 +146,7 @@ app.post("/invoice", async (req, res) => {
 });
 
 // TODO=> This endpoint is not the part of KODERS, This is used for raagwaas website.
-app.post("/send-mail", async (req, res) => {
+app.post("/send-mail", cors(corsOptions), async (req, res) => {
   const { data } = req.body;
   if (data?.name && data?.phone && data?.message && data?.email) {
     const response = await sendEmail(data);
