@@ -17,20 +17,29 @@ const port = 9442;
 const serverHost = `http://localhost:${port}`;
 
 app.use(express.json());
-app.use(cors({ origin: ["https://raagwaas.com/", appUrl] }));
-app.use(function (req, res, next) {
-  const origin = req.getHeader("Origin");
-  if (origin == null || origin.length() == 0) {
-    origin = [appUrl, "https://raagwaas.com"];
-  }
-  res.setHeader("Access-Control-Allow-Origin", origin);
-  res.setHeader("Access-Control-Allow-Credentials", "true");
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Authorization");
-  res.setHeader("Access-Control-Max-Age", "1");
-  res.setHeader("Vary", "*");
-  next();
-});
+// app.use(cors({ origin: ["https://raagwaas.com/", appUrl] }));
+
+const allowedOrigins = ["https://raagwaas.com", appUrl];
+
+// Use CORS middleware with dynamic origin function
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin) {
+        // allow requests with no origin (e.g. curl requests, Postman, etc.)
+        return callback(null, true);
+      }
+      if (allowedOrigins.indexOf(origin) === -1) {
+        const msg =
+          "The CORS policy for this site does not allow access from the specified origin.";
+        return callback(new Error(msg), false);
+      }
+      return callback(null, true);
+    },
+    methods: ["GET", "POST", "OPTIONS"],
+    allowedHeaders: ["Content-Type"],
+  })
+);
 
 app.get("/", (_, res) => {
   res.send("Payment API is working perfectly");
