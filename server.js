@@ -17,6 +17,13 @@ const port = 9442;
 const serverHost = `http://localhost:${port}`;
 
 app.use(express.json());
+app.use(function (req, res, next) {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  res.setHeader("Access-Control-Allow-Credentials", true);
+  next();
+});
 app.use(
   cors({
     origin: [appUrl, "https://raagwaas.com/"],
