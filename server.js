@@ -17,21 +17,20 @@ const port = 9442;
 const serverHost = `http://localhost:${port}`;
 
 // app.use(cors({ origin: ["https://raagwaas.com/", appUrl] }));
-var allowedOrigins = [appUrl, "https://raagwaas.com"];
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      if (!origin) return callback(null, true);
-      if (allowedOrigins.indexOf(origin) === -1) {
-        var msg =
-          "The CORS policy for this site does not " +
-          "allow access from the specified Origin.";
-        return callback(new Error(msg), false);
-      }
-      return callback(null, true);
-    },
-  })
-);
+// var allowedOrigins = [appUrl, "https://raagwaas.com"];
+// {
+//   origin: function (origin, callback) {
+//     if (!origin) return callback(null, true);
+//     if (allowedOrigins.indexOf(origin) === -1) {
+//       var msg =
+//         "The CORS policy for this site does not " +
+//         "allow access from the specified Origin.";
+//       return callback(new Error(msg), false);
+//     }
+//     return callback(null, true);
+//   },
+// }
+app.use(cors());
 
 app.use(express.json());
 
