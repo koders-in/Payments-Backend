@@ -20,6 +20,7 @@ app.use(express.json());
 app.use(
   cors({
     origin: [appUrl, "https://raagwaas.com/"],
+    optionsSuccessStatus: 200, // For legacy browser support
   })
 );
 
