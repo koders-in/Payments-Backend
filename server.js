@@ -16,7 +16,7 @@ const appUrl = process.env.APP_URL;
 const port = 9442;
 const serverHost = `http://localhost:${port}`;
 
-app.use(cors({ origin: ["https://raagwaas.com", appUrl] }));
+app.use(cors({ origin: ["https://raagwaas.com/", appUrl] }));
 app.use(express.json());
 
 app.get("/", (_, res) => {
@@ -137,7 +137,7 @@ app.post("/invoice", async (req, res) => {
 });
 
 // TODO=> This endpoint is not the part of KODERS, This is used for raagwaas website.
-app.post("/send-mail", async (req, res) => {
+app.post("/send-email", async (req, res) => {
   const { data } = req.body;
   if (data?.name && data?.phone && data?.message && data?.email) {
     const response = await sendEmail(data);
