@@ -15,10 +15,17 @@ const {
 const appUrl = process.env.APP_URL;
 const port = 9442;
 const serverHost = `http://localhost:${port}`;
-
+var allowedDomains = [appUrl, "https://raagwaas.com/"];
 app.use(
   cors({
-    origin: appUrl,
+    origin: function (origin, callback) {
+      if (!origin) return callback(null, true);
+      if (allowedDomains.indexOf(origin) === -1) {
+        var msg = `This site ${origin} does not have an access. Only specific domains are allowed to access it.`;
+        return callback(new Error(msg), false);
+      }
+      return callback(null, true);
+    },
   })
 );
 
@@ -138,6 +145,25 @@ app.post("/invoice", async (req, res) => {
     else res.status(200).json(response);
   } catch (error) {
     res.status(500).json({ message: "Internal Server Error" });
+  }
+});
+
+// TODO=> This endpoint is not the part of KODERS, This is used for raagwaas website.
+app.post("/send-mail", async (req, res) => {
+  const { data } = req.body;
+  if (data?.name && data?.phone && data?.message && data?.email) {
+    const response = await sendEmail(data);
+    if (response?.data) {
+      res
+        .status(200)
+        .json({ message: "Mail sent Successfully!", data: response?.data });
+    } else if (response === null) {
+      res.status(500).json({ message: "Internal server error." });
+    } else {
+      res.status(400).json({ message: "Unable to send email. Try later." });
+    }
+  } else {
+    res.status(400).json({ message: "All parameters are required." });
   }
 });
 
