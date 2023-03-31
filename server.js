@@ -11,7 +11,7 @@ const {
   getBudget,
   getInvoiceDetails,
 } = require("./helper");
-
+const sendEmail = require("./mail");
 const appUrl = process.env.APP_URL;
 const port = 9442;
 const serverHost = `http://localhost:${port}`;
