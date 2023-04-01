@@ -17,12 +17,22 @@ const appUrl = process.env.APP_URL;
 const port = 9442;
 const serverHost = `http://localhost:${port}`;
 
+const allowedURL = [appUrl, "https://raagwaas.com/"];
+
 app.use(
   cors({
     origin: "*",
   })
 );
-// app.options("*", cors());
+
+app.use((req, res, next) => {
+  const origin = req.header.origin || req.header.referer;
+  if (allowedURL.includes(origin)) {
+    next();
+  } else {
+    res.status(403).json({ msg: "Seem like you got lost", result: null });
+  }
+});
 
 app.use(express.json());
 
