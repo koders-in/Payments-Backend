@@ -156,19 +156,24 @@ app.post("/invoice", async (req, res) => {
 // TODO=> This endpoint is not the part of KODERS, This is used for raagwaas website.
 app.post("/send-email", async (req, res) => {
   const { data } = req.body;
-  if (data?.name && data?.phone && data?.message && data?.email) {
-    const response = await sendEmail(data);
-    if (response?.data) {
-      res
-        .status(200)
-        .json({ message: "Mail sent Successfully!", data: response?.data });
-    } else if (response === null) {
-      res.status(500).json({ message: "Internal server error." });
+  let response = null;
+  if (data?.type === "contact") {
+    if (data?.name && data?.phone && data?.message && data?.email) {
+      response = await sendEmail(data);
     } else {
-      res.status(400).json({ message: "Unable to send email. Try later." });
+      res.status(400).json({ message: "All parameters are required." });
     }
+  } else if (data?.type === "subscription" && data?.email) {
+    response = await sendEmail(data);
+  } else res.status(400).json({ message: "Bad request." });
+  if (response?.data) {
+    res
+      .status(200)
+      .json({ message: "Mail sent Successfully!", data: response?.data });
+  } else if (response === null) {
+    res.status(500).json({ message: "Internal server error." });
   } else {
-    res.status(400).json({ message: "All parameters are required." });
+    res.status(400).json({ message: "Unable to send email. Try later." });
   }
 });
 
