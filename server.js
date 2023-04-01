@@ -16,8 +16,13 @@ const appUrl = process.env.APP_URL;
 const port = 9442;
 const serverHost = `http://localhost:${port}`;
 
-app.use(cors());
-app.options("*", cors());
+app.use(
+  cors({
+    origin: [appUrl, "https://raagwaas.com/"],
+    preflightContinue: true,
+  })
+);
+// app.options("*", cors());
 
 app.use(express.json());
 
