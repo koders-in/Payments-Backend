@@ -19,8 +19,7 @@ const serverHost = `http://localhost:${port}`;
 
 app.use(
   cors({
-    origin: [appUrl, "https://raagwaas.com/"],
-    preflightContinue: true,
+    origin: "*",
   })
 );
 // app.options("*", cors());
