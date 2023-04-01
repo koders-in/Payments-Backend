@@ -17,7 +17,7 @@ const appUrl = process.env.APP_URL;
 const port = 9442;
 const serverHost = `http://localhost:${port}`;
 
-const allowedURL = [appUrl, "https://raagwaas.com/"];
+const allowedURL = [appUrl, "https://raagwaas.com"];
 
 app.use(
   cors({
@@ -26,8 +26,8 @@ app.use(
 );
 
 app.use((req, res, next) => {
-  const origin = req.header.origin || req.header.referer;
-  if (allowedURL.includes(origin)) {
+  const origin = req.get("origin");
+  if (origin && allowedURL.includes(origin)) {
     next();
   } else {
     res.status(403).json({ msg: "Seem like you got lost", result: null });
