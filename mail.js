@@ -13,7 +13,7 @@ async function sendEmail(contactObj) {
       },
     });
     let res = null;
-    if (data.type === "contact") {
+    if (contactObj.type === "contact") {
       res = await transporter.sendMail({
         from: process.env.EMAIL_USERNAME,
         to: process.env.EMAIL_USERNAME,
@@ -25,7 +25,7 @@ async function sendEmail(contactObj) {
         from: process.env.EMAIL_USERNAME,
         to: process.env.EMAIL_USERNAME,
         subject: "Request for Subscription",
-        text: `Dear Raghav,\n\nI want to subscribing your newsletter! \n\n Regards${data?.email}`,
+        text: `Dear Raghav,\n\nI want to subscribing your newsletter! \n\n Regards${contactObj?.email}`,
       });
     }
     if (res?.messageId || res?.response?.includes("OK")) {
