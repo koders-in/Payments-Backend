@@ -25,7 +25,7 @@ async function sendEmail(contactObj) {
         from: process.env.EMAIL_USERNAME,
         to: process.env.EMAIL_USERNAME,
         subject: "Request for Subscription",
-        text: `Dear Raghav,\n\nI want to subscribing your newsletter! \n\n Regards${contactObj?.email}`,
+        text: `Dear Raghav,\n\nI want to subscribing your newsletter! \n\n Email address:${contactObj?.email}`,
       });
     }
     if (res?.messageId || res?.response?.includes("OK")) {
