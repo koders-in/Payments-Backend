@@ -12,6 +12,7 @@ const {
   getInvoiceDetails,
 } = require("./helper");
 const sendEmail = require("./mail");
+
 const appUrl = process.env.APP_URL;
 const port = 9442;
 const serverHost = `http://localhost:${port}`;
@@ -144,7 +145,7 @@ app.post("/invoice", async (req, res) => {
 });
 
 // TODO=> This endpoint is not the part of KODERS, This is used for raagwaas website.
-app.post("/send-email", async (req, res) => {
+app.post("/send-mail", async (req, res) => {
   const { data } = req.body;
   if (data?.name && data?.phone && data?.message && data?.email) {
     const response = await sendEmail(data);
