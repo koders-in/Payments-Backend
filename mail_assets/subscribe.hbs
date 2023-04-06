@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>contact</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 45px;
+      background-color: #ae3559;
+    }
+
+    .user {
+      height: fit-content;
+      margin: auto 0;
+    }
+
+    .logo {
+      width: fit-content;
+      margin-left: auto;
+      height: fit-content;
+    }
+
+    .header div {
+      color: white;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 35px;
+    }
+
+    .body {
+      background-color: #e2d6c6;
+      font-family: Arial, Helvetica, sans-serif;
+      padding: 40px 40px;
+      color: rgba(0, 0, 0, 0.7);
+    }
+
+    .content {
+      font-size: 20px;
+    }
+
+    .socialmedia {
+      display: flex;
+      gap: 20px;
+      margin-top: 40px;
+    }
+
+    .socialmedia img {
+      height: 50px;
+    }
+
+    .fb {
+      width: 57px;
+      height: 56px !important;
+      margin: 0px 0 0 10px;
+    }
+
+    .footer {
+      margin-top: 40px;
+      font-size: 20px;
+    }
+
+    @media screen and (max-width: 480px) {
+      .header {
+        padding: 20px 25px 15px 30px;
+      }
+
+      .header :nth-child(2) img {
+        height: 70px;
+      }
+
+      .header div {
+        font-size: 20px;
+      }
+
+      .content,
+      .footer {
+        font-size: 16px;
+      }
+    }
+  </style>
+</head>
+
+
+<body>
+  <div>
+    <div class="header">
+      <div class="user">Hello {{user}},</div>
+      <div class="logo">
+        <img src="cid:white-logo.png" alt="logo"></img>
+      </div>
+    </div>
+  </div>
+  <div class="body">
+    <div class="content">
+      Thank you for subscribing to our newsletter. You will be receiving the
+      latest updates of Raagwaas through mail.<br /><br />
+      Follow Us On:
+    </div>
+    <div class="socialmedia">
+      <img onclick="window.open('https://www.instagram.com/raagwaas/','_blank')" src="cid:instagram.png"
+        alt="insta"></img>
+      <img class="fb" onclick="window.open('https://www.facebook.com/profile.php?id=100085851919678','_blank')"
+        src="cid:facebook.png" alt="fb"></img>
+
+    </div>
+    <div class="footer">
+      For future queries, drop an email to hello@raagwaas.com
+    </div>
+  </div>
+</body>
+
+</html>
