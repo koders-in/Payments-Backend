@@ -63,7 +63,7 @@ async function sendEmail(contactObj) {
         await transporter.sendMail({
           from: process.env.EMAIL_USERNAME,
           to: contactObj.email,
-          subject: "Stay Updated with Our Latest News and Exciting Offers!",
+          subject: "Thank you for contacting Raagwaas.",
           html,
           attachments: [
             {
