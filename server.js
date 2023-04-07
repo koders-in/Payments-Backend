@@ -17,7 +17,8 @@ const appUrl = process.env.APP_URL;
 const port = 9442;
 const serverHost = `http://localhost:${port}`;
 
-const allowedURL = [appUrl, "https://raagwaas.com"];
+// Added http endpoint because in mobile website open with unsecure protocol(http).
+const allowedURL = [appUrl, "https://raagwaas.com", "http://raagwaas.com"];
 
 app.use(
   cors({
