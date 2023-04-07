@@ -29,7 +29,7 @@ async function sendEmail(contactObj) {
         await transporter.sendMail({
           from: process.env.EMAIL_USERNAME,
           to: contactObj.email,
-          subject: "User Inquiry through Contact Us",
+          subject: "Thank you for contacting Raagwaas.",
           html,
           attachments: [
             {
@@ -63,7 +63,7 @@ async function sendEmail(contactObj) {
         await transporter.sendMail({
           from: process.env.EMAIL_USERNAME,
           to: contactObj.email,
-          subject: "User Inquiry through Contact Us",
+          subject: "Stay Updated with Our Latest News and Exciting Offers!",
           html,
           attachments: [
             {
