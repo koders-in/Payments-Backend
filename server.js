@@ -10,6 +10,7 @@ const {
   getProjectData,
   getBudget,
   getInvoiceDetails,
+  getAllProjectStatus
 } = require("./helper");
 const sendEmail = require("./mail");
 
@@ -17,8 +18,7 @@ const appUrl = process.env.APP_URL;
 const port = 9442;
 const serverHost = `http://localhost:${port}`;
 
-// Added http endpoint because in mobile website open with unsecure protocol(http).
-const allowedURL = [appUrl, "https://raagwaas.com", "http://raagwaas.com"];
+const allowedURL = [appUrl, "https://raagwaas.com", "http://raagwaas.com", "https://status.koders.in", "http://status.koders.in"];
 
 app.use(
   cors({
@@ -39,6 +39,16 @@ app.use(express.json());
 
 app.get("/", (_, res) => {
   res.send("Payment API is working perfectly");
+});
+
+app.get("/status", (_, res) => {
+  const apiKey = process.env.REDMINE_API_KEY;
+  if (apiKey){
+    const data = getAllProjectStatus(apiKey);
+    res.status(200).json({ msg: "Project Status", data });
+  } else {
+    res.status(400).json({ msg: "Bad request" });
+  }
 });
 
 app.post("/get-project", async (req, res) => {

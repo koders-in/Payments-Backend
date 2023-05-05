@@ -70,6 +70,28 @@ const getProjectMilestones = async (apiKey, projectIdentifier) => {
   }
 };
 
+const getAllProjectStatus = async (apiKey) => {
+  const whitelistedProjects = ["public-relations", "kore", "x12-mirror", "graphana", "test-project-budget-check", "wait-list"];
+  try{
+    const {data, status} = await client.get(`/projects.json`, makeConfig(apiKey));
+    if(status === 200){
+      const {projects} = data;
+      const projectStatus = {};
+      for(let project of projects){
+        if (!whitelistedProjects.includes(project.identifier)) continue;
+        projectStatus[project.name] = 0
+        const response = await client.get(`/projects/${projectIdentifier}/issues.json?status_id=*&limit=100`, makeConfig(apiKey));
+        if (response) {
+        for(let issue of response.data.issues){
+          projectStatus[project.name] += issue.done_ratio;
+        }
+      }
+      }
+      console.log(projectStatus);
+      return projectStatus;
+    }
+  }
+}
 const getProjectData = async (apiKey, projectIdentifier) => {
   try {
     const { data, status } = await client.get(
@@ -158,7 +180,6 @@ const fetchProject = async (apiKey, projectIdentifier) => {
   }
 };
 
-// tags retreive
 
 const getTagsFromIssues = async (apiKey, issues, targtedTag) => {
   if (issues === undefined) return false;
@@ -215,4 +236,5 @@ module.exports = {
   getProjectData,
   getTagsFromIssues,
   getInvoiceDetails,
+  getAllProjectStatus,
 };
