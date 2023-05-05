@@ -90,8 +90,14 @@ const getAllProjectStatus = async (apiKey) => {
       console.log(projectStatus);
       return projectStatus;
     }
+  }catch(error){
+    console.error("Something went wrong while fetching project status.", error);
+    return null;
   }
 }
+
+
+
 const getProjectData = async (apiKey, projectIdentifier) => {
   try {
     const { data, status } = await client.get(
