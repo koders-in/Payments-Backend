@@ -78,6 +78,7 @@ const getAllProjectStatus = async (apiKey) => {
       const {projects} = data;
       const projectStatus = {};
       for(let project of projects){
+        console.log(project)
         if (!whitelistedProjects.includes(project.identifier)) continue;
         projectStatus[project.name] = 0
         const response = await client.get(`/projects/${projectIdentifier}/issues.json?status_id=*&limit=100`, makeConfig(apiKey));
@@ -90,8 +91,14 @@ const getAllProjectStatus = async (apiKey) => {
       console.log(projectStatus);
       return projectStatus;
     }
+  }catch(error){
+    console.error("Something went wrong while fetching project status.", error);
+    return null;
   }
 }
+
+
+
 const getProjectData = async (apiKey, projectIdentifier) => {
   try {
     const { data, status } = await client.get(
