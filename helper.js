@@ -71,7 +71,7 @@ const getProjectMilestones = async (apiKey, projectIdentifier) => {
 };
 
 const getAllProjectStatus = async (apiKey) => {
-  const blackListedProjects = ["public-relations", "kore", "x12-mirror", "graphana", "test-project-budget-check", "wait-list"];
+  const blackListedProjects = ["public-relations", "kore", "x12-mirror", "graphana", "test-project-budget-check", "wait-list", "getting-started-with-koders"];
   try{
     const {data, status} = await client.get('/projects.json', makeConfig(apiKey));
     if(status === 200){
