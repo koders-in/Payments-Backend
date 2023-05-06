@@ -41,10 +41,10 @@ app.get("/", (_, res) => {
   res.send("Payment API is working perfectly");
 });
 
-app.get("/status", (_, res) => {
+app.get("/status", async (_, res) => {
   const apiKey = process.env.REDMINE_API_KEY;
   if (apiKey){
-    const data = getAllProjectStatus(apiKey);
+    const data = await getAllProjectStatus(apiKey);
     res.status(200).json({ msg: "Project Status", data });
   } else {
     res.status(400).json({ msg: "Bad request" });
