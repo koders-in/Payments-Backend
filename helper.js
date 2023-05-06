@@ -97,7 +97,7 @@ const getAllProjectStatus = async (apiKey) => {
       }
     }
       return projectStatus;
-    }
+      }
   }catch(error){
     console.error("Something went wrong while fetching project status.", error);
     return null;
