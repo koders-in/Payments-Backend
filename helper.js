@@ -73,7 +73,7 @@ const getProjectMilestones = async (apiKey, projectIdentifier) => {
 const getAllProjectStatus = async (apiKey) => {
   const blackListedProjects = ["public-relations", "kore", "x12-mirror", "graphana", "test-project-budget-check", "wait-list"];
   try{
-    const {data, status} = await client.get(`/projects.json`, makeConfig(apiKey));
+    const {data, status} = await client.get('/projects.json', makeConfig(apiKey));
     console.log(data)
     if(status === 200){
       const {projects} = data;
@@ -86,7 +86,7 @@ const getAllProjectStatus = async (apiKey) => {
         }
         console.log(`Whitelisted Project: ${project.identifier}`)
         projectStatus[project.name] = 0
-        const response = await client.get(`/projects/${project.identifier}/issues.json?status_id=*&limit=100`, makeConfig(apiKey));
+        const response = await client.get('/projects/${project.identifier}/issues.json?status_id=*&limit=100', makeConfig(apiKey));
         if (response) {
         for(let issue of response.data.issues){
           projectStatus[project.name] += issue.done_ratio;
