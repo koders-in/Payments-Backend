@@ -81,14 +81,13 @@ const getAllProjectStatus = async (apiKey) => {
         console.log(project)
         if (!whitelistedProjects.includes(project.identifier)) continue;
         projectStatus[project.name] = 0
-        const response = await client.get(`/projects/${projectIdentifier}/issues.json?status_id=*&limit=100`, makeConfig(apiKey));
+        const response = await client.get(`/projects/${project.identifier}/issues.json?status_id=*&limit=100`, makeConfig(apiKey));
         if (response) {
         for(let issue of response.data.issues){
           projectStatus[project.name] += issue.done_ratio;
         }
       }
       }
-      console.log(projectStatus);
       return projectStatus;
     }
   }catch(error){
