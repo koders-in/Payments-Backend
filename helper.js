@@ -78,10 +78,12 @@ const getAllProjectStatus = async (apiKey) => {
       const {projects} = data;
       const projectStatus = {};
       for(let project of projects){
+        console.log(project.identifier)
         if(blackListedProjects.includes(project.identifier)) {
-          console.log(project.identifier)
+          console.log(`Blacklisted Project: ${project.identifier}`)
           continue;
         }
+        console.log(`Whitelisted Project: ${project.identifier}`)
         projectStatus[project.name] = 0
         const response = await client.get(`/projects/${project.identifier}/issues.json?status_id=*&limit=100`, makeConfig(apiKey));
         if (response) {
