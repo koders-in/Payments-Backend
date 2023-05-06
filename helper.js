@@ -74,26 +74,29 @@ const getAllProjectStatus = async (apiKey) => {
   const blackListedProjects = ["public-relations", "kore", "x12-mirror", "graphana", "test-project-budget-check", "wait-list"];
   try{
     const {data, status} = await client.get('/projects.json', makeConfig(apiKey));
-    console.log(data)
     if(status === 200){
       const {projects} = data;
       const projectStatus = {};
       for(let project of projects){
-        console.log(project.identifier)
         if(blackListedProjects.includes(project.identifier)) {
-          console.log(`Blacklisted Project: ${project.identifier}`)
           continue;
         }
-        console.log(`Whitelisted Project: ${project.identifier}`)
         projectStatus[project.name] = 0
         const response = await client.get('/projects/${project.identifier}/issues.json?status_id=*&limit=100', makeConfig(apiKey));
+        let issueCounter = 0;
         if (response) {
         for(let issue of response.data.issues){
           projectStatus[project.name] += issue.done_ratio;
+          issueCounter += 1;
         }
       }
+        if( issueCounter > 0) {
+        projectStatus[project.name] /= issueCounter;
+        projectStatus[project.name] = projectStatus[project.name].toFixed(2);
+        issueCounter = 0;
       }
       return projectStatus;
+      }
     }
   }catch(error){
     console.error("Something went wrong while fetching project status.", error);
