@@ -130,7 +130,7 @@ class CouponManager {
   }
 
   isValidCode (code) {
-    return !(code.length === 0)
+    return (code.length !== Number(0))
   }
 
   isValidAmount (amount) {
@@ -166,7 +166,7 @@ class CouponManager {
   }
 
   async isValidTag (tag, apiKey, issues) {
-    return await getTagsFromIssues(apiKey, issues, tag)
+    return getTagsFromIssues(apiKey, issues, tag)
   }
 
   getProject (pid) {
@@ -266,7 +266,7 @@ class CouponManager {
     }
     const { amount, result } = this.isValidAmount(budget)
     if (result) {
-      if (!(amount >= couponDetail.minAmount)) {
+      if ((amount <= couponDetail.minAmount)) {
         // eslint-disable-next-line quotes
         return this.createResponse("BUDGET_IS_TOO_SMALL", false, null)
       }

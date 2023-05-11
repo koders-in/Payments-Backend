@@ -139,7 +139,7 @@ const getBudget = async (apiKey, issueIdentifiers) => {
 
       const $ = cheerio.load(data)
       const tableItems = $('.billing-details tbody tr')
-      for (let i = 0; i < tableItems.length; i++) {
+      for (const i of tableItems) {
         const el = tableItems[i]
         if ($(el).children('th').text() === 'Budget') {
           amount += Number(

@@ -55,7 +55,7 @@ app.post('/get-project', async (req, res) => {
   const { apiKey, projectIdentifier } = req.body
   if (apiKey && projectIdentifier) {
     const data = await fetchProject(apiKey, projectIdentifier)
-    if (data !== null && data !== '') {
+    if (data !== null && data !== String('')) {
       res.status(200).json({ msg: 'Project Details', data })
     } else res.status(400).json({ msg: 'Bad request' })
   } else res.status(404).json({ msg: 'Some keys are missing', data: null })
@@ -65,7 +65,7 @@ app.post('/get-budget', async (req, res) => {
   const { apiKey, issues } = req.body
   if (apiKey && issues) {
     const amount = await getBudget(apiKey, issues)
-    if (amount === null && amount === '') {
+    if (amount === null && amount === String('')) {
       res.status(400).json({ msg: 'Bad request' })
     } else res.status(200).json({ msg: 'Budget amount', data: amount })
   } else res.status(404).json({ msg: 'Some keys are missing', data: null })
@@ -75,7 +75,7 @@ app.post('/coupon', async (req, res) => {
   const { apiKey, issues, coupon, pid } = req.body
   if (apiKey && issues && coupon) {
     const amount = await getBudget(apiKey, issues)
-    if (!(amount === null && amount === '')) {
+    if (!(amount === null && amount === String(''))) {
       const result = couponManager.calculate(
         amount,
         coupon,
@@ -85,8 +85,9 @@ app.post('/coupon', async (req, res) => {
       )
       let code = 200
       if (result !== undefined) {
-        if (result.isValid) code = 200
-        else code = 400
+        if (!result.isValid) {
+          code = 400
+        }
       } else code = 400
       res.status(code).json(result)
     } else res.status(400).json({ msg: 'Bad request' })
@@ -166,8 +167,7 @@ app.post('/invoice', async (req, res) => {
   }
 })
 
-// TODO=> This endpoint is not the part of KODERS, This is used for raagwaas website.
-app.post('/send-email', async (req, res) => {
+app.post('/send-email', async (req, res) => { // This endpoint is not the part of KODERS, This is used for raagwaas website.
   const { data } = req.body
   let response = null
   if (data?.type === 'contact') {
