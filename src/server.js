@@ -4,13 +4,13 @@ const express = require('express')
 const cors = require('cors')
 const app = express()
 const stripe = require('stripe')(process.env.STRIPE_SK)
-const couponManager = require('./coupon')
+// const couponManager = require('./coupon')
 const {
   fetchProject,
   getProjectData,
   getBudget,
   getInvoiceDetails,
-  getAllProjectStatus
+  getFilteredProjectStatus
 } = require('./helper')
 const sendEmail = require('./mail')
 
@@ -18,22 +18,26 @@ const appUrl = process.env.APP_URL
 const port = 9442
 const serverHost = `http://localhost:${port}`
 
-const allowedURL = [appUrl, 'https://raagwaas.com']
+const allowedUrls = [appUrl, 'https://raagwaas.com']
 
+app.disable('x-powered-by')
+
+// enable cors with allowed urls
 app.use(
   cors({
-    origin: '*'
+    origin: allowedUrls,
+    optionsSuccessStatus: 200
   })
 )
 
-app.use((req, res, next) => {
-  const origin = req.get('origin')
-  if (origin && allowedURL.includes(origin)) {
-    next()
-  } else {
-    res.status(403).json({ msg: 'Seem like you got lost', result: null })
-  }
-})
+// app.use((req, res, next) => {
+//   const origin = req.get('origin')
+//   if (origin && allowedUrls.includes(origin)) {
+//     next()
+//   } else {
+//     res.status(403).json({ msg: 'Seem like you got lost', result: null })
+//   }
+// })
 
 app.use(express.json())
 
@@ -44,7 +48,8 @@ app.get('/', (_, res) => {
 app.get('/status', async (_, res) => {
   const apiKey = process.env.REDMINE_API_KEY
   if (apiKey) {
-    const data = await getAllProjectStatus(apiKey)
+    const blackListedProjects = ['public-relations', 'kore', 'x12-mirror', 'graphana', 'test-project-budget-check', 'wait-list', 'getting-started-with-koders']
+    const data = await getFilteredProjectStatus(apiKey, blackListedProjects)
     res.status(200).json({ msg: 'Project Status', data })
   } else {
     res.status(400).json({ msg: 'Bad request' })
@@ -55,7 +60,7 @@ app.post('/get-project', async (req, res) => {
   const { apiKey, projectIdentifier } = req.body
   if (apiKey && projectIdentifier) {
     const data = await fetchProject(apiKey, projectIdentifier)
-    if (data !== null && data !== String('')) {
+    if (data !== null && String(data) !== '') {
       res.status(200).json({ msg: 'Project Details', data })
     } else res.status(400).json({ msg: 'Bad request' })
   } else res.status(404).json({ msg: 'Some keys are missing', data: null })
@@ -65,34 +70,35 @@ app.post('/get-budget', async (req, res) => {
   const { apiKey, issues } = req.body
   if (apiKey && issues) {
     const amount = await getBudget(apiKey, issues)
-    if (amount === null && amount === String('')) {
+    if (amount === null && String(amount) === '') {
       res.status(400).json({ msg: 'Bad request' })
     } else res.status(200).json({ msg: 'Budget amount', data: amount })
   } else res.status(404).json({ msg: 'Some keys are missing', data: null })
 })
 
-app.post('/coupon', async (req, res) => {
-  const { apiKey, issues, coupon, pid } = req.body
-  if (apiKey && issues && coupon) {
-    const amount = await getBudget(apiKey, issues)
-    if (!(amount === null && amount === String(''))) {
-      const result = couponManager.calculate(
-        amount,
-        coupon,
-        pid,
-        apiKey,
-        issues
-      )
-      let code = 200
-      if (result !== undefined) {
-        if (!result.isValid) {
-          code = 400
-        }
-      } else code = 400
-      res.status(code).json(result)
-    } else res.status(400).json({ msg: 'Bad request' })
-  } else res.status(404).json({ msg: 'Some keys are missing', data: null })
-})
+// FEAT: Add coupon functionality to hasura
+// app.post('/coupon', async (req, res) => {
+//   const { apiKey, issues, coupon, pid } = req.body
+//   if (apiKey && issues && coupon) {
+//     const amount = await getBudget(apiKey, issues)
+//     if (!(amount === null && String(amount) === '')) {
+//       const result = couponManager.calculate(
+//         amount,
+//         coupon,
+//         pid,
+//         apiKey,
+//         issues
+//       )
+//       let code = 200
+//       if (result !== undefined) {
+//         if (!result.isValid) {
+//           code = 400
+//         }
+//       } else code = 400
+//       res.status(code).json(result)
+//     } else res.status(400).json({ msg: 'Bad request' })
+//   } else res.status(404).json({ msg: 'Some keys are missing', data: null })
+// })
 
 app.get('/stripe-redirect/:id', (req, res) => {
   const paramValue = req.params.id
@@ -101,9 +107,9 @@ app.get('/stripe-redirect/:id', (req, res) => {
     if (paramValue.toLowerCase() === 'cancel') {
       url = `${appUrl}/`
     } else {
-      const pid = req.query.pid
+      // const pid = req.query.pid
       url = `${appUrl}/#/success`
-      couponManager.updateCsvFile(pid)
+      // couponManager.updateCsvFile(pid)
     }
   }
   res.status(302).redirect(url)
@@ -198,3 +204,5 @@ app.get('*', function (req, res) {
 app.listen(port, () => {
   console.log(`Koders payment app listening at ${serverHost}`)
 })
+
+module.exports = app

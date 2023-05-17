@@ -1,0 +1,6 @@
+projectKey=Payments-backend
+serverUrl=https://sonarqube.koders.in
+serverVersion=9.0.1.46107
+dashboardUrl=https://sonarqube.koders.in/dashboard?id=Payments-backend
+ceTaskId=AYgpaS38_7S60lGYddmw
+ceTaskUrl=https://sonarqube.koders.in/api/ce/task?id=AYgpaS38_7S60lGYddmw

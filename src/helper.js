@@ -34,70 +34,87 @@ const getMilestoneData = async (apiKey, milestone) => {
   return null
 }
 
-const getProjectMilestones = async (apiKey, projectIdentifier) => {
-  const milestonesData = {}
+const getProjectIssues = async (apiKey, projectIdentifier) => {
   try {
-    const response = await client.get(
+    return client.get(
       `/projects/${projectIdentifier}/issues.json?status_id=*&limit=100`,
       makeConfig(apiKey)
     )
-    for (const issue of response.data.issues) {
-      try {
-        if (milestonesData[issue.fixed_version.id] === undefined) {
-          milestonesData[issue.fixed_version.id] = {
-            doneRatio: issue.done_ratio,
-            issues: [issue.id]
-          }
-        } else {
-          milestonesData[issue.fixed_version.id] = {
-            doneRatio:
-              milestonesData[issue.fixed_version.id].doneRatio +
-              issue.done_ratio,
-            issues: [
-              ...milestonesData[issue.fixed_version.id].issues,
-              issue.id
-            ]
-          }
-        }
-      } catch (error) {
-        console.log('Something went wrong. Unable to find any releases', error)
-        return null
-      }
-    }
-    return milestonesData
   } catch (error) {
-    console.error('Something went wrong while fetching milestone data.', error)
+    console.error('Something went wrong while fetching project issues.', error)
     return null
   }
 }
 
-const getAllProjectStatus = async (apiKey) => {
-  const blackListedProjects = ['public-relations', 'kore', 'x12-mirror', 'graphana', 'test-project-budget-check', 'wait-list', 'getting-started-with-koders']
+const getProjectMilestones = async (apiKey, projectIdentifier) => {
+  const milestonesData = {}
+  const response = await getProjectIssues(apiKey, projectIdentifier)
+  const issues = response.data.issues
+  for (const issue of issues) {
+    try {
+      if (milestonesData[issue.fixed_version.id] === undefined) {
+        milestonesData[issue.fixed_version.id] = {
+          doneRatio: issue.done_ratio,
+          issues: [issue.id]
+        }
+      } else {
+        milestonesData[issue.fixed_version.id] = {
+          doneRatio:
+            milestonesData[issue.fixed_version.id].doneRatio +
+            issue.done_ratio,
+          issues: [
+            ...milestonesData[issue.fixed_version.id].issues,
+            issue.id
+          ]
+        }
+      }
+    } catch (error) {
+      console.log('Something went wrong. Unable to find any releases', error)
+      return null
+    }
+  }
+  return milestonesData
+}
+
+const getAllProjects = async (apiKey) => {
   try {
     const { data, status } = await client.get('/projects.json', makeConfig(apiKey))
     if (status === 200) {
-      const { projects } = data
-      const projectStatus = {}
-      for (const project of projects) {
-        if (blackListedProjects.includes(project.identifier)) {
-          continue
-        }
-        projectStatus[project.name] = 0
-        const response = await client.get(`/projects/${project.identifier}/issues.json?status_id=*&limit=100`, makeConfig(apiKey))
-        let issueCounter = 0
-        if (response) {
-          for (const issue of response.data.issues) {
-            projectStatus[project.name] += issue.done_ratio
-            issueCounter += 1
-          }
+      return data
+    } else {
+      return null
+    }
+  } catch (error) {
+    console.error('Something went wrong while fetching project status.', error)
+    return null
+  }
+}
+
+const getFilteredProjectStatus = async (apiKey, blackListedProjects = []) => {
+  try {
+    const reponse = await getAllProjects(apiKey)
+    const projects = reponse.projects
+    const projectStatus = {}
+    for (const project of projects) {
+      if (blackListedProjects.includes(project.identifier)) {
+        continue
+      }
+      projectStatus[project.name] = 0
+      const response = await getProjectIssues(apiKey, project.identifier)
+      const issues = response.data.issues
+      let issueCounter = 0
+      if (issues) {
+        for (const issue of issues) {
+          projectStatus[project.name] += issue.done_ratio
+          issueCounter += 1
         }
         if (issueCounter > 0) {
           projectStatus[project.name] /= issueCounter
           projectStatus[project.name] = projectStatus[project.name].toFixed(2)
         }
       }
-      return projectStatus
     }
+    return projectStatus
   } catch (error) {
     console.error('Something went wrong while fetching project status.', error)
     return null
@@ -131,6 +148,7 @@ const getProjectData = async (apiKey, projectIdentifier) => {
 const getBudget = async (apiKey, issueIdentifiers) => {
   let amount = 0
   for (const issue of issueIdentifiers) {
+    console.log(issue)
     try {
       const { data } = await client.get(
         `/issues/${issue}?token=${apiKey}`,
@@ -148,10 +166,12 @@ const getBudget = async (apiKey, issueIdentifiers) => {
         }
       }
     } catch (error) {
+      console.error(error)
       console.log('Something went wrong while calculating budget. Skipping...')
       return null
     }
   }
+  console.log(amount)
   return amount
 }
 
@@ -201,6 +221,7 @@ const getTagsFromIssues = async (apiKey, issues, targtedTag) => {
     )
     if (status === 200) {
       const tags = data.issue.tags
+      console.log(tags)
       for (const tag of tags) {
         if (tag.name.toLowerCase().includes(targtedTag.toLowerCase())) {
           return true
@@ -210,6 +231,9 @@ const getTagsFromIssues = async (apiKey, issues, targtedTag) => {
   }
   return false
 }
+
+// FIXME: This is a temporary function to get the tags from issues but tags are not available in the response
+// (async () => console.log(await getTagsFromIssues(process.env.REDMINE_API_KEY, [2077, 2078, 2079], 'akka')))()
 
 async function getInvoiceDetails (project, apiKey) {
   try {
@@ -245,7 +269,10 @@ module.exports = {
   getBudget,
   fetchProject,
   getProjectData,
+  getMilestoneData,
+  getProjectMilestones,
   getTagsFromIssues,
+  getProjectIssues,
   getInvoiceDetails,
-  getAllProjectStatus
+  getFilteredProjectStatus
 }

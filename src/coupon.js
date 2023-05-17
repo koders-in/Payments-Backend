@@ -39,7 +39,7 @@ class CouponManager {
   }
 
   createPath (fileName) {
-    return path.join(__dirname, 'storage', fileName)
+    return path.join(__dirname, 'coupons', fileName)
   }
 
   readCsvFile (fileName) {
