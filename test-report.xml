@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testExecutions version="1">
+  <file path="C:\Users\Koders\Desktop\Payments-Backend\tests\server.test.js">
+    <testCase name="Test the root path should return data from /invoice endpoint" duration="51"/>
+    <testCase name="Test the root path should return data from /get-project endpoint" duration="11"/>
+    <testCase name="Test the root path should return data from /get-budget endpoint" duration="1215"/>
+  </file>
+  <file path="C:\Users\Koders\Desktop\Payments-Backend\tests\helper.test.js">
+    <testCase name="Testing helper functions should return project issues" duration="824"/>
+    <testCase name="Testing helper functions should return project milestone data" duration="2547"/>
+    <testCase name="Testing helper functions should return all project status" duration="1271"/>
+    <testCase name="Testing helper functions should return project data" duration="639"/>
+    <testCase name="Testing helper functions should return fetched project" duration="3515"/>
+    <testCase name="Testing helper functions should return invoice details" duration="3091"/>
+  </file>
+</testExecutions>
