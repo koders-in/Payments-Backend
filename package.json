@@ -7,8 +7,10 @@
   "author": "Koders <info@koders.in>",
   "license": "Koders",
   "scripts": {
-    "dev": "nodemon server.js",
-    "test": "jest --coverage"
+    "dev": "nodemon ./src/server.js",
+    "test": "jest --coverage",
+    "prepare": "husky install",
+    "sonar": "sonar-scanner -Dsonar.projectKey=Koders-Payments-Backend"
   },
   "dependencies": {
     "axios": "^0.27.2",
@@ -39,6 +41,7 @@
     "eslint-plugin-n": "^15.3.0",
     "eslint-plugin-promise": "^6.0.1",
     "eslint-plugin-react": "^7.31.10",
+    "husky": "^8.0.3",
     "jest-sonar-reporter": "^2.0.0",
     "nodemon": "^2.0.19",
     "typescript": "^4.8.4"
