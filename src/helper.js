@@ -148,7 +148,6 @@ const getProjectData = async (apiKey, projectIdentifier) => {
 const getBudget = async (apiKey, issueIdentifiers) => {
   let amount = 0
   for (const issue of issueIdentifiers) {
-    console.log(issue)
     try {
       const { data } = await client.get(
         `/issues/${issue}?token=${apiKey}`,
@@ -157,11 +156,10 @@ const getBudget = async (apiKey, issueIdentifiers) => {
 
       const $ = cheerio.load(data)
       const tableItems = $('.billing-details tbody tr')
-      for (const i of tableItems) {
-        const el = tableItems[i]
-        if ($(el).children('th').text() === 'Budget') {
+      for (const tableItem of tableItems) {
+        if ($(tableItem).children('th').text() === 'Budget') {
           amount += Number(
-            $(el).children('td').text().trim().replace(/[,₹]/g, '')
+            $(tableItem).children('td').text().trim().replace(/[,₹]/g, '')
           )
         }
       }
@@ -171,7 +169,6 @@ const getBudget = async (apiKey, issueIdentifiers) => {
       return null
     }
   }
-  console.log(amount)
   return amount
 }
 

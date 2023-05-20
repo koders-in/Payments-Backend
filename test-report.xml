@@ -1,16 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testExecutions version="1">
   <file path="C:\Users\Koders\Desktop\Payments-Backend\tests\server.test.js">
-    <testCase name="Test the root path should return data from /invoice endpoint" duration="55"/>
-    <testCase name="Test the root path should return data from /get-project endpoint" duration="7"/>
-    <testCase name="Test the root path should return data from /get-budget endpoint" duration="1745"/>
+    <testCase name="Test the root path should return data from /invoice endpoint" duration="100"/>
+    <testCase name="Test the root path should return data from /get-project endpoint" duration="12"/>
+    <testCase name="Test the root path should return data from /get-budget endpoint" duration="1360"/>
   </file>
   <file path="C:\Users\Koders\Desktop\Payments-Backend\tests\helper.test.js">
-    <testCase name="Testing helper functions should return project issues" duration="1058"/>
-    <testCase name="Testing helper functions should return project milestone data" duration="3275"/>
-    <testCase name="Testing helper functions should return all project status" duration="1534"/>
-    <testCase name="Testing helper functions should return project data" duration="637"/>
-    <testCase name="Testing helper functions should return fetched project" duration="3254"/>
-    <testCase name="Testing helper functions should return invoice details" duration="3482"/>
+    <testCase name="Testing helper functions should return project issues" duration="814"/>
+    <testCase name="Testing helper functions should return project milestone data" duration="2453"/>
+    <testCase name="Testing helper functions should return all project status" duration="1143"/>
+    <testCase name="Testing helper functions should return project data" duration="587"/>
+    <testCase name="Testing helper functions should return project budget" duration="1067"/>
+    <testCase name="Testing helper functions should return fetched project" duration="2695"/>
+    <testCase name="Testing helper functions should return invoice details" duration="2927"/>
   </file>
 </testExecutions>

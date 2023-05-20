@@ -1,6 +1,6 @@
 const dotenv = require('dotenv')
 const { describe, it, expect } = require('@jest/globals')
-const { fetchProject, getProjectIssues, getProjectMilestones, getMilestoneData, getFilteredProjectStatus, getProjectData } = require('../src/helper')
+const { fetchProject, getProjectIssues, getProjectMilestones, getBudget, getMilestoneData, getFilteredProjectStatus, getProjectData } = require('../src/helper')
 
 dotenv.config()
 
@@ -29,12 +29,11 @@ describe('Testing helper functions', () => {
     const projectData = await getProjectData(process.env.REDMINE_API_KEY, projectIdentifier)
     expect(projectData).not.toBeNull()
   })
-  //   it('should return project budget', async () => {
-  //     const projectIdentifier = '89'
-  //     const response = await getProjectIssues(process.env.REDMINE_API_KEY, projectIdentifier)
-  //     const projectBudget = await getBudget(process.env.REDMINE_API_KEY, response.data.issues)
-  //     expect(projectBudget).not.toBeNull()
-  //   })
+  it('should return project budget', async () => {
+    const issueIdentifiers = ['2079']
+    const projectBudget = await getBudget(process.env.REDMINE_API_KEY, issueIdentifiers)
+    expect(projectBudget).not.toBeNull()
+  })
   it('should return fetched project', async () => {
     const projectIdentifier = '89'
     const project = await fetchProject(process.env.REDMINE_API_KEY, projectIdentifier)

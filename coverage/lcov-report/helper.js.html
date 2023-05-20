@@ -23,16 +23,16 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">64.66% </span>
+                <span class="strong">64.61% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>86/133</span>
+                <span class='fraction'>84/130</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">32.25% </span>
+                <span class="strong">35.48% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>10/31</span>
+                <span class='fraction'>11/31</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">65.64% </span>
+                <span class="strong">65.62% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>86/131</span>
+                <span class='fraction'>84/128</span>
             </div>
         
             
@@ -338,10 +338,7 @@
 <a name='L273'></a><a href='#L273'>273</a>
 <a name='L274'></a><a href='#L274'>274</a>
 <a name='L275'></a><a href='#L275'>275</a>
-<a name='L276'></a><a href='#L276'>276</a>
-<a name='L277'></a><a href='#L277'>277</a>
-<a name='L278'></a><a href='#L278'>278</a>
-<a name='L279'></a><a href='#L279'>279</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">2x</span>
+<a name='L276'></a><a href='#L276'>276</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
@@ -489,21 +486,19 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">8x</span>
-<span class="cline-any cline-yes">8x</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">16x</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -514,8 +509,7 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
@@ -769,7 +763,6 @@ const getProjectData = async (apiKey, projectIdentifier) =&gt; {
 const getBudget = async (apiKey, issueIdentifiers) =&gt; {
   let amount = 0
   for (const issue of issueIdentifiers) {
-    console.log(issue)
     try {
       const { data } = await client.get(
         `/issues/${issue}?token=${apiKey}`,
@@ -778,11 +771,10 @@ const getBudget = async (apiKey, issueIdentifiers) =&gt; {
 &nbsp;
       const $ = cheerio.load(data)
       const tableItems = $('.billing-details tbody tr')
-      for (const i of tableItems) {
-        const el = tableItems[i]
-        <span class="missing-if-branch" title="if path not taken" >I</span>if ($(el).children('th').text() === 'Budget') {
-<span class="cstat-no" title="statement not covered" >          amount += Number(</span>
-            $(el).children('td').text().trim().replace(/[,₹]/g, '')
+      for (const tableItem of tableItems) {
+        if ($(tableItem).children('th').text() === 'Budget') {
+          amount += Number(
+            $(tableItem).children('td').text().trim().replace(/[,₹]/g, '')
           )
         }
       }
@@ -792,7 +784,6 @@ const getBudget = async (apiKey, issueIdentifiers) =&gt; {
 <span class="cstat-no" title="statement not covered" >      return null</span>
     }
   }
-  console.log(amount)
   return amount
 }
 &nbsp;
@@ -904,7 +895,7 @@ module.exports = {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2023-05-20T01:26:48.579Z
+                at 2023-05-20T01:57:23.282Z
             </div>
         <script src="prettify.js"></script>
         <script>
