@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "nodemon ./src/server.js",
     "test": "jest --coverage",
-    "prepare": "husky install",
+    "prepare": "husky install"
   },
   "dependencies": {
     "axios": "^0.27.2",
