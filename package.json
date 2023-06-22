@@ -30,8 +30,7 @@
     "pretty": "^2.0.0",
     "stripe": "^10.10.0",
     "supertest": "^6.3.3",
-    "uuid": "^9.0.0",
-    "phantomjs-prebuilt": "^2.1.14"
+    "uuid": "^9.0.0"
   },
   "jest": {
     "collectCoverage": true,
