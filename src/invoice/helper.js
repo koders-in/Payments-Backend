@@ -13,7 +13,10 @@ function generatePDF(response) {
         ...data,
         isShowEarlyPay: parseInt(data.earlyPayDiscount) > 0,
       });
-      const options = { format: "Letter" };
+      const options = {
+        format: "Letter",
+        phantomPath: "./node_modules/phantomjs-prebuilt/bin/phantomjs",
+      };
       const uniqueName = uuidv4();
       const path = `./pdf/${uniqueName}.pdf`;
       pdf.create(html, options).toFile(path, async (err, res) => {
