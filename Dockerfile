@@ -1,4 +1,4 @@
-FROM node:latest
+FROM node:18-buster-slim
 WORKDIR /usr/src/app
 COPY package*.json ./
 RUN npm install phantomjs-prebuilt@2.1.14 --unsafe-perm
