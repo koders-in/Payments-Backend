@@ -1,7 +1,7 @@
-FROM node:18-buster-slim
+FROM node:16-buster-slim
 WORKDIR /usr/src/app
 COPY package*.json ./
-RUN npm install phantomjs-prebuilt@2.1.14 --unsafe-perm
+RUN npm install phantomjs-prebuilt@2.1.14 --ignore-scripts
 RUN npm install
 COPY . .
 EXPOSE 9442
