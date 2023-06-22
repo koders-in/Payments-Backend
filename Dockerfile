@@ -1,4 +1,4 @@
-FROM node:16-buster-slim
+FROM node:latest
 WORKDIR /usr/src/app
 COPY package*.json ./
 RUN  npm install phantomjs-prebuilt --phantomjs_cdnurl=https://bitbucket.org/ariya/phantomjs/downloads
