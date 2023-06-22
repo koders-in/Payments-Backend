@@ -4,7 +4,6 @@ const express = require("express");
 const cors = require("cors");
 const app = express();
 const stripe = require("stripe")(process.env.STRIPE_SK);
-// const couponManager = require('./coupon')
 const {
   fetchProject,
   getProjectData,
@@ -14,32 +13,19 @@ const {
 } = require("./helper");
 const sendEmail = require("./mail");
 const generatePDF = require("./invoice/helper");
-const { Blob } = require("buffer");
 
 const appUrl = process.env.APP_URL;
 const port = 9442;
 const serverHost = `http://localhost:${port}`;
-
 const allowedUrls = [appUrl, "https://raagwaas.com"];
-
-// app.disable("x-powered-by");
-
+app.disable("x-powered-by");
 // enable cors with allowed urls
 app.use(
   cors({
-    // origin: allowedUrls,
-    // optionsSuccessStatus: 200
+    origin: allowedUrls,
+    optionsSuccessStatus: 200,
   })
 );
-
-// app.use((req, res, next) => {
-//   const origin = req.get('origin')
-//   if (origin && allowedUrls.includes(origin)) {
-//     next()
-//   } else {
-//     res.status(403).json({ msg: 'Seem like you got lost', result: null })
-//   }
-// })
 
 app.use(express.json());
 
@@ -230,19 +216,3 @@ app.listen(port, () => {
 });
 
 module.exports = app;
-
-// const res = await fetchData(
-//   showInvoice.projectIdentifier,
-//   showInvoice.apiKey
-// );
-// console.log("res?.data", res?.data);
-// const link = document.createElement("a");
-// link.setAttribute(
-//   "href",
-//   'data:"application/pdf;base64,' + res?.data
-// );
-// link.setAttribute("download", "test.pdf");
-
-// document.body.appendChild(link);
-// link.click();
-// document.body.removeChild(link);
