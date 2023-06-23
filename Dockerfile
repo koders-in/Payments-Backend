@@ -1,4 +1,4 @@
-FROM node:current-buster-slim
+FROM node:latest
 WORKDIR /usr/src/app
 COPY package*.json ./
 npm install phantomjs-prebuilt@2.1.14 --ignore-scripts
