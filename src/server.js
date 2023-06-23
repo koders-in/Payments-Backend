@@ -163,16 +163,20 @@ app.post("/invoice", async (req, res) => {
       res.status(500).json({ message: "Internal Server Error" });
     } else {
       const path = await generatePDF(response);
-      const base64PDF = fs.readFileSync(path.filename, { encoding: "base64" });
-      res.json({
-        data: base64PDF,
-        name:
-          response?.invoiceData?.project?.name || new Date().toLocaleString(),
-      });
-      fs.unlink(path.filename, (err) => {
-        if (err) console.log(err);
-        console.log(path.filename + " was deleted");
-      });
+      if (path?.filename) {
+        const base64PDF = fs.readFileSync(path.filename, {
+          encoding: "base64",
+        });
+        res.json({
+          data: base64PDF,
+          name:
+            response?.invoiceData?.project?.name || new Date().toLocaleString(),
+        });
+        fs.unlink(path.filename, (err) => {
+          if (err) console.log(err);
+          console.log(path.filename + " was deleted");
+        });
+      } else throw Error("Unable to generate PDF");
     }
   } catch (error) {
     console.log(error);
