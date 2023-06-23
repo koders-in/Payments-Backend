@@ -15,6 +15,7 @@ function generatePDF(response) {
       });
       const options = {
         format: "Letter",
+        phantomPath: "/usr/local/bin/phantomjs",
       };
       const uniqueName = uuidv4();
       const path = `./pdf/${uniqueName}.pdf`;
