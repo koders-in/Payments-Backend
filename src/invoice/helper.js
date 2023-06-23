@@ -14,6 +14,11 @@ function generatePDF(response) {
         isShowEarlyPay: parseInt(data.earlyPayDiscount) > 0,
       });
       const options = {
+        childProcessOptions: {
+          env: {
+            OPENSSL_CONF: "/dev/null",
+          },
+        },
         format: "Letter",
         phantomPath: "./node_modules/phantomjs-prebuilt/bin/phantomjs",
       };
