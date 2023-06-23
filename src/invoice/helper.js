@@ -19,6 +19,7 @@ function generatePDF(response) {
       };
       const uniqueName = uuidv4();
       const path = `./pdf/${uniqueName}.pdf`;
+      // const path = `./pdf/${uniqueName}.pdf`;
       pdf.create(html, options).toFile(path, async (err, res) => {
         if (err) {
           reject(err);
