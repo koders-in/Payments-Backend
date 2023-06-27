@@ -112,39 +112,43 @@ app.get("/stripe-redirect/:id", (req, res) => {
 });
 
 app.post("/checkout", async (req, res) => {
-  const {
-    milestoneTitle,
-    milestoneUnitAmount: amount,
-    apiKey,
-    projectIdentifier,
-    type,
-  } = req.body;
-  const { projectName, projectIcon } = await getProjectData(
-    apiKey,
-    projectIdentifier
-  );
-  if ((milestoneTitle && amount) || projectIcon) {
-    const session = await stripe.checkout.sessions.create({
-      line_items: [
-        {
-          price_data: {
-            currency: type.toLowerCase(),
-            product_data: {
-              name: projectName,
-              description: milestoneTitle,
-              images: [projectIcon],
+  try {
+    const {
+      milestoneTitle,
+      milestoneUnitAmount: amount,
+      apiKey,
+      projectIdentifier,
+      type,
+    } = req.body;
+    const { projectName, projectIcon } = await getProjectData(
+      apiKey,
+      projectIdentifier
+    );
+    if ((milestoneTitle && amount) || projectIcon) {
+      const session = await stripe.checkout.sessions.create({
+        line_items: [
+          {
+            price_data: {
+              currency: type.toLowerCase(),
+              product_data: {
+                name: projectName,
+                description: milestoneTitle,
+                images: [projectIcon],
+              },
+              unit_amount: Math.round(Number(amount)) * 100,
             },
-            unit_amount: Math.round(Number(amount)) * 100,
+            quantity: 1,
           },
-          quantity: 1,
-        },
-      ],
-      mode: "payment",
-      success_url: `${serverHost}/stripe-redirect/success?pid=${projectIdentifier}`,
-      cancel_url: `${serverHost}/stripe-redirect/cancel`,
-    });
-    res.status(200).json({ msg: "Checkout URL", data: session.url });
-  } else res.status(404).json({ msg: "Some keys are missing", data: null });
+        ],
+        mode: "payment",
+        success_url: `${serverHost}/stripe-redirect/success?pid=${projectIdentifier}`,
+        cancel_url: `${serverHost}/stripe-redirect/cancel`,
+      });
+      res.status(200).json({ msg: "Checkout URL", data: session.url });
+    } else res.status(404).json({ msg: "Some keys are missing", data: null });
+  } catch (error) {
+    res.status(500).json({ msg: error?.message, data: null });
+  }
 });
 
 app.post("/invoice", async (req, res) => {
