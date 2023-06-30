@@ -55,7 +55,7 @@ jobs:
       uses: fifsky/ssh-action@master
       with:
         command: |
-          docker run -d -p 9442:9442 --network host --name payments-backend -e REDMINE_API_KEY=${{ secrets.REDMINE_API_KEY }} -e EMAIL_USERNAME=${{ secrets.EMAIL_USERNAME }} -e EMAIL_PASSWORD=${{ secrets.EMAIL_PASSWORD }} -e EMAIL_HOST=${{ secrets.EMAIL_HOST }} -e EMAIL_PORT=${{ secrets.EMAIL_PORT }} -e REDMINE_URL=http://localhost:9550 -e STRIPE_SK=${{ secrets.STRIPE_SK }} -e APP_URL=https://payments.koders.in -v /home/panther/payments:/usr/src/app/storage ${{ secrets.DOCKER_HUB_USERNAME }}/payments-backend
+          docker run -d -p 9442:9442 --network host --name payments-backend -e WH_DISCORD_URL=${{ secrets.WH_DISCORD_URL}} -e WH_STRIPE_SECRET=${{ secrets.WH_STRIPE_SECRET}} -e REDMINE_API_KEY=${{ secrets.REDMINE_API_KEY }} -e EMAIL_USERNAME=${{ secrets.EMAIL_USERNAME }} -e EMAIL_PASSWORD=${{ secrets.EMAIL_PASSWORD }} -e EMAIL_HOST=${{ secrets.EMAIL_HOST }} -e EMAIL_PORT=${{ secrets.EMAIL_PORT }} -e REDMINE_URL=http://localhost:9550 -e STRIPE_SK=${{ secrets.STRIPE_SK }} -e APP_URL=https://payments.koders.in -v /home/panther/payments:/usr/src/app/storage ${{ secrets.DOCKER_HUB_USERNAME }}/payments-backend
         host: ${{ secrets.HOST }}
         user: ${{ secrets.USERNAME }}
         pass: ${{ secrets.PASSWORD}}
