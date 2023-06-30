@@ -49,8 +49,12 @@ function getInvoiceObject(payload) {
     invoiceDate: payload?.invoiceData?.invoice_date,
     currency: currency_symbols[payload?.invoiceData?.currency],
     address: payload?.contactDetails?.address?.full_address?.full_address,
-    number: payload?.contactDetails?.phones[0]?.number,
-    email: payload?.contactDetails?.emails[0]?.address,
+    number: payload?.contactDetails?.phones?.length
+      ? payload?.contactDetails?.phones[0]?.number
+      : "Not provided",
+    email: payload?.contactDetails?.emails?.length
+      ? payload?.contactDetails?.emails[0]?.address
+      : "Not provided",
     lines: payload?.invoiceData?.lines.map((item, i) => ({
       ...item,
       index: i + 1,
