@@ -261,7 +261,38 @@ async function getInvoiceDetails(project, apiKey) {
   }
 }
 
+async function getInvoiceType(apiKey, project) {
+  try {
+    const projectDetails = await fetchData(`/projects/${project}.json`, apiKey);
+    if (projectDetails !== null) {
+      const invoiceField = projectDetails?.project?.custom_fields.filter(
+        (item) => item.name === "Invoice id"
+      );
+      const invoiceDetails = await fetchData(
+        `/invoices/${invoiceField[0].value}.json`,
+        apiKey
+      );
+      return {
+        type:
+          invoiceDetails?.invoice?.status?.name !== "Estimate" ||
+          invoiceDetails?.invoice?.status?.name !== "Draft"
+            ? "Invoice"
+            : "Quotation",
+      };
+    } else
+      return {
+        type: "Invoice",
+      };
+  } catch (error) {
+    console.log(error?.message);
+    return {
+      type: "Invoice",
+    };
+  }
+}
+
 module.exports = {
+  getInvoiceType,
   getBudget,
   fetchProject,
   getProjectData,

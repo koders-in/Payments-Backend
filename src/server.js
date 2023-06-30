@@ -11,6 +11,7 @@ const {
   getBudget,
   getInvoiceDetails,
   getFilteredProjectStatus,
+  getInvoiceType,
 } = require("./helper");
 const sendEmail = require("./mail");
 const generatePDF = require("./invoice/helper");
@@ -23,11 +24,10 @@ const allowedUrls = [appUrl, "https://raagwaas.com"];
 app.disable("x-powered-by");
 // enable cors with allowed urls
 app.use(
-  cors()
-  //   {
-  //   origin: allowedUrls,
-  //   optionsSuccessStatus: 200,
-  // }
+  cors({
+    origin: allowedUrls,
+    optionsSuccessStatus: 200,
+  })
 );
 
 app.use((req, res, next) => {
@@ -65,8 +65,10 @@ app.post("/get-project", async (req, res) => {
   const { apiKey, projectIdentifier } = req.body;
   if (apiKey && projectIdentifier) {
     const data = await fetchProject(apiKey, projectIdentifier);
+    const type = await getInvoiceType(apiKey, projectIdentifier);
+    console.log("type", type);
     if (data !== null && String(data) !== "") {
-      res.status(200).json({ msg: "Project Details", data });
+      res.status(200).json({ msg: "Project Details", ...{ data, type } });
     } else res.status(400).json({ msg: "Bad request" });
   } else res.status(404).json({ msg: "Some keys are missing", data: null });
 });
@@ -165,7 +167,6 @@ app.post("/invoice", async (req, res) => {
     const {
       data: { project, apiKey },
     } = req.body;
-    console.log("project, apiKey", project, apiKey);
     if (!project && !apiKey) {
       res
         .status(400)
@@ -173,14 +174,12 @@ app.post("/invoice", async (req, res) => {
       return;
     }
     const response = await getInvoiceDetails(project, apiKey);
-    console.log("Invoice data get from redmine", response);
     if (response === null) {
       res.status(500).json({
         message: "Internal Server Error:Unable to fetch data from redmine",
       });
     } else {
       const path = await generatePDF(response);
-      console.log("get file path", path);
       if (path?.filename) {
         const base64PDF = fs.readFileSync(path.filename, {
           encoding: "base64",
@@ -192,7 +191,6 @@ app.post("/invoice", async (req, res) => {
         });
         fs.unlink(path.filename, (err) => {
           if (err) console.log(err);
-          console.log(path.filename + " was deleted");
         });
       } else throw Error("Unable to generate PDF");
     }
