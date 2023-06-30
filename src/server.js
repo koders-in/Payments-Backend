@@ -224,7 +224,7 @@ app.post("/send-email", async (req, res) => {
 });
 
 let id = null;
-const endpointSecret = process.env.ENDPOINT_SECRET;
+const endpointSecret = process.env.WH_STRIPE_SECRET;
 
 app.post(
   "/stripe",
@@ -250,7 +250,7 @@ app.post(
           case "charge.succeeded":
             {
               const payload = getWebhookPayload(event?.data?.object);
-              axios(process.env.WEBHOOK_URL, {
+              axios(process.env.WH_DISCORD_URL, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 data: JSON.stringify(payload),
