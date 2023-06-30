@@ -28,7 +28,7 @@ const getMilestoneData = async (apiKey, milestone) => {
       return milestoneData;
     }
   } catch (err) {
-    console.log("Milestone not found. Skipping...");
+    // console.log("Milestone not found. Skipping...");
     return null;
   }
   return null;
@@ -65,7 +65,7 @@ const getProjectMilestones = async (apiKey, projectIdentifier) => {
         };
       }
     } catch (error) {
-      console.log("Something went wrong. Unable to find any releases", error);
+      // console.log("Something went wrong. Unable to find any releases", error);
       return null;
     }
   }
@@ -164,7 +164,7 @@ const getBudget = async (apiKey, issueIdentifiers) => {
       }
     } catch (error) {
       console.error(error);
-      console.log("Something went wrong while calculating budget. Skipping...");
+      // console.log("Something went wrong while calculating budget. Skipping...");
       return null;
     }
   }
@@ -217,7 +217,6 @@ const getTagsFromIssues = async (apiKey, issues, targtedTag) => {
     );
     if (status === 200) {
       const tags = data.issue.tags;
-      console.log(tags);
       for (const tag of tags) {
         if (tag.name.toLowerCase().includes(targtedTag.toLowerCase())) {
           return true;
@@ -256,7 +255,7 @@ async function getInvoiceDetails(project, apiKey) {
       } else return null;
     } else return null;
   } catch (error) {
-    console.log(error);
+    // console.log(error);
     return null;
   }
 }
@@ -284,7 +283,7 @@ async function getInvoiceType(apiKey, project) {
         type: "Invoice",
       };
   } catch (error) {
-    console.log(error?.message);
+    // console.log(error?.message);
     return {
       type: "Invoice",
     };
