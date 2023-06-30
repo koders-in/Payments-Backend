@@ -165,6 +165,7 @@ app.post("/invoice", async (req, res) => {
     const {
       data: { project, apiKey },
     } = req.body;
+    console.log("project, apiKey", project, apiKey);
     if (!project && !apiKey) {
       res
         .status(400)
@@ -172,10 +173,14 @@ app.post("/invoice", async (req, res) => {
       return;
     }
     const response = await getInvoiceDetails(project, apiKey);
+    console.log("Invoice data get from redmine", response);
     if (response === null) {
-      res.status(500).json({ message: "Internal Server Error" });
+      res.status(500).json({
+        message: "Internal Server Error:Unable to fetch data from redmine",
+      });
     } else {
       const path = await generatePDF(response);
+      console.log("get file path", path);
       if (path?.filename) {
         const base64PDF = fs.readFileSync(path.filename, {
           encoding: "base64",
