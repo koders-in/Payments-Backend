@@ -2,6 +2,7 @@ require("dotenv").config();
 const fs = require("fs");
 const express = require("express");
 const cors = require("cors");
+const axios = require("axios");
 const app = express();
 const stripe = require("stripe")(process.env.STRIPE_SK);
 const {
@@ -13,6 +14,7 @@ const {
 } = require("./helper");
 const sendEmail = require("./mail");
 const generatePDF = require("./invoice/helper");
+const getWebhookPayload = require("./constant");
 
 const appUrl = process.env.APP_URL;
 const port = 9442;
@@ -21,13 +23,20 @@ const allowedUrls = [appUrl, "https://raagwaas.com"];
 app.disable("x-powered-by");
 // enable cors with allowed urls
 app.use(
-  cors({
-    origin: allowedUrls,
-    optionsSuccessStatus: 200,
-  })
+  cors()
+  //   {
+  //   origin: allowedUrls,
+  //   optionsSuccessStatus: 200,
+  // }
 );
 
-app.use(express.json());
+app.use((req, res, next) => {
+  if (req.originalUrl === "/stripe") {
+    next();
+  } else {
+    express.json()(req, res, next);
+  }
+});
 
 app.get("/", (_, res) => {
   res.send("Payment API is working perfectly");
@@ -213,6 +222,60 @@ app.post("/send-email", async (req, res) => {
     res.status(400).json({ message: "Unable to send email. Try later." });
   }
 });
+
+let id = null;
+const endpointSecret = process.env.ENDPOINT_SECRET;
+
+app.post(
+  "/stripe",
+  express.raw({ type: "application/json" }),
+  async (request, response) => {
+    try {
+      const sig = request.headers["stripe-signature"];
+      let event = {};
+      try {
+        event = stripe.webhooks.constructEvent(
+          request.body,
+          sig,
+          endpointSecret
+        );
+      } catch (err) {
+        console.log(err?.message);
+        response.status(400).send(`Webhook Error: ${err.message}`);
+        return;
+      }
+      if (id !== event?.data?.object?.id) {
+        id = event?.data?.object?.id;
+        switch (event.type) {
+          case "charge.succeeded":
+            {
+              const payload = getWebhookPayload(event?.data?.object);
+              axios(process.env.WEBHOOK_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                data: JSON.stringify(payload),
+              })
+                .then((res) => {
+                  console.log("Send successfully!");
+                })
+                .catch((e) => {
+                  console.log("Error:", e?.message);
+                });
+            }
+            break;
+          default: {
+            console.log(`Unhandled event type---> ${event.type}`);
+          }
+        }
+      }
+
+      response.send();
+    } catch (error) {
+      console.log(error?.message);
+      response.status(400).send(error.message);
+    }
+  }
+);
 
 app.get("*", function (req, res) {
   const msg = `<p>No possible <b>${req.path} </b> endpoint for <b>${req.method}</b> method</p>`;
