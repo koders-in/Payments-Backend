@@ -67,7 +67,7 @@ app.post("/get-project", async (req, res) => {
     const data = await fetchProject(apiKey, projectIdentifier);
     const type = await getInvoiceType(apiKey, projectIdentifier);
     if (data !== null && String(data) !== "") {
-      res.status(200).json({ msg: "Project Details", ...{ data, type } });
+      res.status(200).json({ msg: "Project Details", ...{ data, ...type } });
     } else res.status(400).json({ msg: "Bad request" });
   } else res.status(404).json({ msg: "Some keys are missing", data: null });
 });
