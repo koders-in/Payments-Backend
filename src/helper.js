@@ -164,7 +164,7 @@ const getBudget = async (apiKey, issueIdentifiers) => {
       }
     } catch (error) {
       console.error(error);
-      // console.log("Something went wrong while calculating budget. Skipping...");
+      console.log("Something went wrong while calculating budget. Skipping...");
       return null;
     }
   }
@@ -217,6 +217,7 @@ const getTagsFromIssues = async (apiKey, issues, targtedTag) => {
     );
     if (status === 200) {
       const tags = data.issue.tags;
+      console.log(tags);
       for (const tag of tags) {
         if (tag.name.toLowerCase().includes(targtedTag.toLowerCase())) {
           return true;
@@ -255,7 +256,7 @@ async function getInvoiceDetails(project, apiKey) {
       } else return null;
     } else return null;
   } catch (error) {
-    // console.log(error);
+    console.log(error);
     return null;
   }
 }
@@ -273,17 +274,17 @@ async function getInvoiceType(apiKey, project) {
       );
       return {
         type:
-          invoiceDetails?.invoice?.status?.name !== "Estimate" ||
-          invoiceDetails?.invoice?.status?.name !== "Draft"
-            ? "Invoice"
-            : "Quotation",
+          invoiceDetails?.invoice?.status?.name === "Estimate" ||
+          invoiceDetails?.invoice?.status?.name === "Draft"
+            ? "Quotation"
+            : "Invoice",
       };
     } else
       return {
         type: "Invoice",
       };
   } catch (error) {
-    // console.log(error?.message);
+    console.log(error?.message);
     return {
       type: "Invoice",
     };

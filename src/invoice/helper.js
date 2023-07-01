@@ -2,9 +2,10 @@ const pdf = require("html-pdf");
 const fs = require("fs");
 const handlebars = require("handlebars");
 const { v4: uuidv4 } = require("uuid");
+const http = require("http");
 
 function generatePDF(response) {
-  return new Promise((resolve, reject) => {
+  return new Promise(async (resolve, reject) => {
     try {
       const source = fs.readFileSync("./invoice.hbs", "utf8");
       const template = handlebars.compile(source);
@@ -65,10 +66,10 @@ function getInvoiceObject(payload) {
       currency: currency_symbols[payload?.invoiceData?.currency],
     })),
     invoice:
-      payload?.invoiceData?.status?.name !== "Estimate" ||
-      payload?.invoiceData?.status?.name !== "Draft"
-        ? "Invoice"
-        : "Quotation",
+      payload?.invoiceData?.status?.name === "Estimate" ||
+      payload?.invoiceData?.status?.name === "Draft"
+        ? "Quotation"
+        : "Invoice",
     total: geTotalOfInvoiceLines(payload?.invoiceData?.lines),
     discountPercent: Number(
       payload?.invoiceData?.discount / 100
@@ -93,7 +94,7 @@ function getInvoiceObject(payload) {
       ?.value?.split(","),
     qr: payload?.invoiceData?.custom_fields.filter(
       (item) => item.name === "QR"
-    )[0],
+    )[0]?.value,
   };
 }
 
