@@ -39,7 +39,6 @@ function generatePDF(response) {
 }
 
 function getInvoiceObject(payload) {
-  console.log(payload);
   return {
     name:
       payload?.contactDetails?.first_name +
@@ -82,7 +81,9 @@ function getInvoiceObject(payload) {
           10
       ) / 10
     ).toFixed(2),
-    balance: payload?.invoiceData?.amount - payload?.invoiceData?.balance,
+    balance: (
+      payload?.invoiceData?.amount - payload?.invoiceData?.balance
+    ).toFixed(2),
     earlyPayDate: new getEarlyPayData(payload?.invoiceData)?.date,
     earlyPayDiscount: getEarlyPayData(payload?.invoiceData)?.discount,
     earlyPayAmt: (
