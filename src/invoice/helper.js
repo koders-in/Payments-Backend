@@ -21,6 +21,12 @@ function generatePDF(response) {
           },
         },
         format: "Letter",
+        footer: {
+          height: "30px",
+        },
+        header: {
+          height: "30px",
+        },
       };
       const uniqueName = uuidv4();
       const path = `./pdf/${uniqueName}.pdf`;

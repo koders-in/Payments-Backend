@@ -189,11 +189,15 @@
     .right-footer {
       width: 50%;
     }
+    @page  {
+     padding-bottom: 20px;
+     size: letter; /*or width then height 150mm 50mm*/
+   }
   </style>
 </head>
 
-<body>
-  <div style="margin-top: 20px"></div>
+<body style="padding-bottom: 20px;">
+  {{!-- <div style="margin-top: 20px"></div> --}}
   <div style="width: 85%" class="flex justify-between align-end">
     <div style="color: #00a99d; width: fit-content;margin-left: 12px;margin-top:4px;" class="fs-20 text-teal">{{name}}
     </div>
@@ -302,14 +306,14 @@
         </div>
       </div>
       <div style="margin-top: 20px"></div>
-      <div>
+      {{!-- <div>
         <div class="text-teal fs-12">Terms and Conditions</div>
         <ul class="fs-10">
           {{#each conditions}}
           <li>{{this}}</li>
           {{/each}}
         </ul>
-      </div>
+      </div> --}}
     </div>
     <div style="width: 20px"></div>
     <div style="width:46%" class="right-footer fs-10">
