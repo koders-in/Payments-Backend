@@ -1,90 +1,89 @@
-const pdf = require("html-pdf");
-const fs = require("fs");
-const handlebars = require("handlebars");
-const { v4: uuidv4 } = require("uuid");
-const http = require("http");
+const pdf = require('html-pdf')
+const fs = require('fs')
+const handlebars = require('handlebars')
+const { v4: uuidv4 } = require('uuid')
 
-function generatePDF(response) {
+function generatePDF (response) {
   return new Promise(async (resolve, reject) => {
     try {
-      const source = fs.readFileSync("./invoice.hbs", "utf8");
-      const template = handlebars.compile(source);
-      const data = getInvoiceObject(response);
+      const source = fs.readFileSync('./invoice.hbs', 'utf8')
+      const template = handlebars.compile(source)
+      const data = getInvoiceObject(response)
       const html = template({
         ...data,
-        isShowEarlyPay: parseInt(data.earlyPayDiscount) > 0,
-      });
+        isShowEarlyPay: parseInt(data.earlyPayDiscount) > 0
+      })
       const options = {
         childProcessOptions: {
           env: {
-            OPENSSL_CONF: "/dev/null",
-          },
+            OPENSSL_CONF: '/dev/null'
+          }
         },
-        format: "Letter",
+        format: 'Letter',
         footer: {
-          height: "30px",
+          height: '30px'
         },
         header: {
-          height: "30px",
-        },
-      };
-      const uniqueName = uuidv4();
-      const path = `./pdf/${uniqueName}.pdf`;
+          height: '30px'
+        }
+      }
+      const uniqueName = uuidv4()
+      const path = `./pdf/${uniqueName}.pdf`
       pdf.create(html, options).toFile(path, async (err, res) => {
         if (err) {
-          reject(err);
+          reject(err)
         } else {
-          resolve(res);
+          resolve(res)
         }
-      });
+      })
     } catch (error) {
-      console.log(error);
-      reject(error);
+      console.log(error)
+      reject(error)
     }
-  });
+  })
 }
 
-function getInvoiceObject(payload) {
+function getInvoiceObject (payload) {
   return {
     name:
       payload?.contactDetails?.first_name +
-      " " +
+      ' ' +
       payload.contactDetails?.middle_name +
-      " " +
+      ' ' +
       payload?.contactDetails?.last_name,
     invoiceNo: payload?.invoiceData?.number,
     invoiceDate: payload?.invoiceData?.invoice_date,
-    currency: currency_symbols[payload?.invoiceData?.currency],
+    currency: currencySymbols[payload?.invoiceData?.currency],
     address: payload?.contactDetails?.address?.full_address?.full_address,
     number: payload?.contactDetails?.phones?.length
       ? payload?.contactDetails?.phones[0]?.number
-      : "Not provided",
+      : 'Not provided',
     email: payload?.contactDetails?.emails?.length
       ? payload?.contactDetails?.emails[0]?.address
-      : "Not provided",
+      : 'Not provided',
     lines: payload?.invoiceData?.lines.map((item, i) => ({
       ...item,
-      index: i + 1,
+      index: i + 1
     })),
     payments: payload?.invoiceData?.payments.map((item) => ({
       ...item,
-      payment_date: new Date(item?.payment_date).toLocaleString().split(",")[0],
-      currency: currency_symbols[payload?.invoiceData?.currency],
+      payment_date: new Date(item?.payment_date).toLocaleString().split(',')[0],
+      currency: currencySymbols[payload?.invoiceData?.currency]
     })),
     invoice:
-      payload?.invoiceData?.status?.name === "Estimate" ||
-      payload?.invoiceData?.status?.name === "Draft"
-        ? "Quotation"
-        : "Invoice",
+      payload?.invoiceData?.status?.name === 'Estimate' ||
+        payload?.invoiceData?.status?.name === 'Draft'
+        ? 'Quotation'
+        : 'Invoice',
     total: geTotalOfInvoiceLines(payload?.invoiceData?.lines),
     discountPercent: Number(
       payload?.invoiceData?.discount / 100
-    ).toLocaleString(undefined, { style: "percent", minimumFractionDigits: 2 }),
+    ).toLocaleString(undefined, { style: 'percent', minimumFractionDigits: 2 }),
     discountAmount: (
       Math.ceil(
         (payload?.invoiceData?.amount / 100) *
-          payload?.invoiceData?.discount *
-          10
+        payload?.invoiceData?.discount *
+        10
       ) / 10
     ).toFixed(2),
     balance: (
@@ -98,53 +97,53 @@ function getInvoiceObject(payload) {
       parseFloat(payload?.invoiceData?.balance)
     ).toFixed(2),
     conditions: payload?.invoiceData?.custom_fields
-      .filter((item) => item.name === "Terms & Condition")[0]
-      ?.value?.split(","),
+      .filter((item) => item.name === 'Terms & Condition')[0]
+      ?.value?.split(','),
     qr: payload?.invoiceData?.custom_fields.filter(
-      (item) => item.name === "QR"
-    )[0]?.value,
-  };
+      (item) => item.name === 'QR'
+    )[0]?.value
+  }
 }
 
-function geTotalOfInvoiceLines(lines) {
-  let total = 0;
+function geTotalOfInvoiceLines (lines) {
+  let total = 0
   lines.forEach((line) => {
-    total += parseFloat(line.total);
-  });
-  return total;
+    total += parseFloat(line.total)
+  })
+  return total
 }
 
-function getEarlyPayData(invoiceData) {
-  let earlyPayData = {};
+function getEarlyPayData (invoiceData) {
+  const earlyPayData = {}
   invoiceData?.custom_fields.forEach((item) => {
-    if (item?.name === "Early Pay Date") {
-      earlyPayData["date"] = new Date(item?.value)
+    if (item?.name === 'Early Pay Date') {
+      earlyPayData.date = new Date(item?.value)
         .toLocaleString()
-        .split(",")[0];
+        .split(',')[0]
     }
-    if (item?.name === "Early Pay Discount") {
-      earlyPayData["discount"] = item?.value;
+    if (item?.name === 'Early Pay Discount') {
+      earlyPayData.discount = item?.value
     }
-  });
-  return earlyPayData;
+  })
+  return earlyPayData
 }
 
-const currency_symbols = {
-  USD: "$", // US Dollar
-  EUR: "€", // Euro
-  CRC: "₡", // Costa Rican Colón
-  GBP: "£", // British Pound Sterling
-  ILS: "₪", // Israeli New Sheqel
-  INR: "₹", // Indian Rupee
-  JPY: "¥", // Japanese Yen
-  KRW: "₩", // South Korean Won
-  NGN: "₦", // Nigerian Naira
-  PHP: "₱", // Philippine Peso
-  PLN: "zł", // Polish Zloty
-  PYG: "₲", // Paraguayan Guarani
-  THB: "฿", // Thai Baht
-  UAH: "₴", // Ukrainian Hryvnia
-  VND: "₫", // Vietnamese Dong
-};
+const currencySymbols = {
+  USD: '$',
+  EUR: '€',
+  CRC: '₡',
+  GBP: '£',
+  ILS: '₪',
+  INR: '₹',
+  JPY: '¥',
+  KRW: '₩',
+  NGN: '₦',
+  PHP: '₱',
+  PLN: 'zł',
+  PYG: '₲',
+  THB: '฿',
+  UAH: '₴',
+  VND: '₫'
+}
 
-module.exports = generatePDF;
+module.exports = generatePDF

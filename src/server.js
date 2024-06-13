@@ -13,7 +13,6 @@ const {
   getFilteredProjectStatus,
   getInvoiceType
 } = require('./helper')
-const sendEmail = require('./mail')
 const generatePDF = require('./invoice/helper')
 const getWebhookPayload = require('./constant')
 
@@ -22,7 +21,6 @@ const port = 9442
 const serverHost = `http://localhost:${port}`
 const allowedUrls = [appUrl, 'https://raagwaas.com']
 app.disable('x-powered-by')
-// enable cors with allowed urls
 app.use(
   cors({
     origin: allowedUrls,
@@ -172,30 +170,6 @@ app.post('/invoice', async (req, res) => {
     res
       .status(500)
       .json({ message: 'Internal Server Error:' + error?.message })
-  }
-})
-
-app.post('/send-email', async (req, res) => {
-  // This endpoint is not the part of KODERS, This is used for raagwaas website.
-  const { data } = req.body
-  let response = null
-  if (data?.type === 'contact') {
-    if (data?.name && data?.phone && data?.message && data?.email) {
-      response = await sendEmail(data)
-    } else {
-      res.status(400).json({ message: 'All parameters are required.' })
-    }
-  } else if (data?.type === 'subscription' && data?.email) {
-    response = await sendEmail(data)
-  } else res.status(400).json({ message: 'Bad request.' })
-  if (response?.data) {
-    res
-      .status(200)
-      .json({ message: 'Mail sent Successfully!', data: response?.data })
-  } else if (response === null) {
-    res.status(500).json({ message: 'Internal server error.' })
-  } else {
-    res.status(400).json({ message: 'Unable to send email. Try later.' })
   }
 })
 
